@@ -1,0 +1,2579 @@
+<!DOCTYPE html>
+<html lang="es" data-font="normal">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Alineación y Ocupación · ANEI</title>
+<link rel="shortcut icon" href="https://anei.org.co/hubfs/logooooooo.png">
+<style id="appStyles">
+:root{
+  --bg:#eef1f5;--card:#ffffff;--ink:#1a2029;--ink-soft:#39424e;--muted:#64748b;--line:#e0e4ea;
+  --brand:#2e7d32;--brand-dark:#1b5e20;--brand-light:#66bb6a;--brand-soft:#eaf6eb;
+  --accent:#f9a825;--radius:14px;
+  --tbl-zebra:rgba(0,0,0,.025);--tbl-hover:rgba(46,125,50,.09);--tbl-border:#d1d8e0;
+  --track:#e6ecf3;
+}
+[data-theme="gray"]{
+  --bg:#d6dae0;--card:#f7f8fa;--ink:#1f2937;--ink-soft:#374151;--muted:#6b7280;--line:#bfc7d0;
+  --brand:#2e7d32;--brand-dark:#1b5e20;--brand-light:#66bb6a;--brand-soft:#e8f2e8;
+  --tbl-zebra:rgba(0,0,0,.035);--tbl-hover:rgba(46,125,50,.10);--tbl-border:#c3cbd4;
+  --track:#c3cbd4;
+}
+[data-theme="dark"]{
+  --bg:#14171c;--card:#1e2229;--ink:#e5e7eb;--ink-soft:#cbd5e1;--muted:#94a3b8;--line:#2d323a;
+  --brand:#66bb6a;--brand-dark:#2e7d32;--brand-soft:#1f2c22;
+  --tbl-zebra:rgba(255,255,255,.025);--tbl-hover:rgba(102,187,106,.10);--tbl-border:#39414c;
+  --track:#2a323d;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px;-webkit-text-size-adjust:100%}
+html[data-font="small"]{font-size:13px}
+html[data-font="normal"]{font-size:15px}
+html[data-font="large"]{font-size:17px}
+html[data-font="xlarge"]{font-size:19px}
+body{background:var(--bg);color:var(--ink);font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:1rem;line-height:1.5;transition:background .3s,color .3s;overflow-x:hidden;position:relative}
+
+/* ═══════════════════════════════════════════════════════════════
+   MARCA DE AGUA ANEI — logo muy transparente y difuminado detrás
+   ═══════════════════════════════════════════════════════════════ */
+body::before{
+  content:"";
+  position: fixed;
+  inset: 0;
+  background-image: url("https://anei.org.co/hubfs/logooooooo.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: min(80vmin, 750px);
+  opacity: 0.045;
+  filter: blur(3px) saturate(0.7);
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity .5s ease;
+}
+[data-theme="dark"] body::before{
+  opacity: 0.075;
+  filter: blur(3px) saturate(0.5) brightness(1.6);
+}
+[data-theme="gray"] body::before{
+  opacity: 0.06;
+  filter: blur(3px) saturate(0.6);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   WRAP — nace con pequeño zoom-out desde el logo gigante
+   ═══════════════════════════════════════════════════════════════ */
+.wrap{
+  max-width:1200px;
+  margin:0 auto;
+  padding:20px 18px 60px;
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  transform: scale(0.94);
+  filter: blur(6px);
+  transition:
+    opacity 1.1s cubic-bezier(.2,.8,.2,1) .55s,
+    transform 1.4s cubic-bezier(.2,.8,.2,1) .55s,
+    filter 1.2s ease .55s;
+  will-change: opacity, transform, filter;
+}
+.wrap.show{
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PANTALLA DE CARGA — el logo se expande hasta llenar la pantalla
+   ═══════════════════════════════════════════════════════════════ */
+#preloader {
+  position: fixed; inset: 0; background: var(--bg); z-index: 99999;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  transition: opacity 1.3s ease .1s, visibility 0s linear 1.4s;
+  overflow: hidden;
+}
+#preloader.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+
+.loader-logo {
+  width: 110px; height: 110px; margin-bottom: 20px;
+  animation: pulse 1.6s ease-in-out infinite;
+  filter: drop-shadow(0 10px 20px rgba(93,64,55,.25));
+  transform-origin: center;
+  will-change: transform, opacity, filter;
+}
+.loader-logo img { width: 100%; height: 100%; object-fit: contain; }
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.08); opacity: .85; }
+}
+
+/* ✅ LOGO EXPLOTA ENORMEMENTE HASTA CUBRIR TODA LA PANTALLA */
+#preloader.hide .loader-logo {
+  animation: zoomThroughLogo 1.5s cubic-bezier(.55,0,.45,1) forwards;
+}
+@keyframes zoomThroughLogo {
+  0%   { transform: scale(1);    opacity: 1;   filter: drop-shadow(0 10px 20px rgba(93,64,55,.25)) brightness(1); }
+  25%  { transform: scale(3.5);  opacity: 1;   filter: drop-shadow(0 25px 45px rgba(46,125,50,.45)) brightness(1.05); }
+  55%  { transform: scale(11);   opacity: 1;   filter: drop-shadow(0 0 60px rgba(46,125,50,.75)) brightness(1.15); }
+  80%  { transform: scale(20);   opacity: .85; filter: drop-shadow(0 0 90px rgba(46,125,50,.6)) brightness(1.25); }
+  100% { transform: scale(30);   opacity: 0;   filter: drop-shadow(0 0 120px rgba(46,125,50,0)) brightness(1.4); }
+}
+
+.loader-titles { text-align: center; margin-bottom: 25px; transition: opacity .4s ease, transform .5s ease; }
+.loader-title { font-size: 1.4rem; font-weight: 900; color: var(--ink); letter-spacing: -0.5px; }
+.loader-title span { color: var(--brand); }
+.loader-sub { font-size: 0.75rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; font-weight: 700; margin-top: 6px; }
+
+#preloader.hide .loader-titles {
+  animation: fadeSlideUp .55s ease .05s forwards;
+}
+#preloader.hide .loader-bar {
+  animation: fadeSlideUp .55s ease 0s forwards;
+}
+@keyframes fadeSlideUp {
+  to { opacity: 0; transform: translateY(-40px); }
+}
+
+.loader-bar {
+  width: 280px; height: 6px; background: var(--line); border-radius: 6px; overflow: hidden;
+  transition: opacity .4s ease;
+}
+.loader-bar-inner {
+  height: 100%; width: 0;
+  background: linear-gradient(90deg, #2e7d32 0%, #5D4037 100%);
+  border-radius: 6px;
+  animation: loadBar ease-in-out forwards;
+}
+@keyframes loadBar {
+  0% { width: 0; }
+  20% { width: 25%; }
+  50% { width: 60%; }
+  80% { width: 85%; }
+  100% { width: 100%; }
+}
+
+/* DARK THEME */
+[data-theme="dark"] table.t td,
+[data-theme="dark"] table.t td.num,
+[data-theme="dark"] .rank-table td,
+[data-theme="dark"] .rank-table td.rank-name-cell,
+[data-theme="dark"] .rank-table td.rank-name-cell b,
+[data-theme="dark"] .rank-table td.rank-name-cell small,
+[data-theme="dark"] .bar-val,
+[data-theme="dark"] .bar-val .cnt,
+[data-theme="dark"] .bar-label,
+[data-theme="dark"] .week-task .wt-name,
+[data-theme="dark"] .week-task .wt-meta,
+[data-theme="dark"] .top-item,
+[data-theme="dark"] .top-name,
+[data-theme="dark"] .mini-top-item .mt-n,
+[data-theme="dark"] .mini-top-item .mt-v,
+[data-theme="dark"] .modal-body,
+[data-theme="dark"] .modal-body p,
+[data-theme="dark"] .mini-card h4,
+[data-theme="dark"] .kpi-s,
+[data-theme="dark"] .kpi-l{color: var(--ink-soft) !important;}
+[data-theme="dark"] table.t th{color: var(--muted) !important;}
+[data-theme="dark"] table.t tfoot td{color: var(--ink) !important;}
+[data-theme="dark"] .kpi-v{-webkit-text-fill-color: transparent !important;background-clip: text !important;-webkit-background-clip: text !important;}
+[data-theme="dark"] .card h2{color: var(--brand) !important;}
+[data-theme="dark"] .modal h3{color: var(--brand) !important;}
+[data-theme="dark"] .mini{color: var(--muted) !important;}
+
+/* HEADER */
+header.top{background:linear-gradient(120deg,var(--brand),var(--brand-dark));color:#fff;border-radius:var(--radius);padding:20px 24px;box-shadow:0 6px 20px rgba(46,125,50,.22);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;position:relative;z-index:1}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.brand-logo{width:56px;height:56px;background:#fff;border-radius:12px;padding:6px;box-shadow:0 2px 8px rgba(0,0,0,.15);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.brand-logo img{max-width:100%;max-height:100%;object-fit:contain}
+header.top h1{font-size:1.35rem;letter-spacing:.2px;font-weight:800;display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+header.top p{font-size:.85rem;opacity:.95;margin-top:3px}
+.header-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.seg{display:inline-flex;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.42);border-radius:10px;padding:3px;gap:2px}
+.seg-btn{background:none;border:0;color:#fff;font-family:inherit;font-weight:800;font-size:.85rem;padding:6px 12px;border-radius:7px;cursor:pointer;transition:.15s;min-width:34px;line-height:1.1}
+.seg-btn:hover{background:rgba(255,255,255,.25)}
+.seg-btn.active{background:#fff;color:var(--brand-dark);box-shadow:0 2px 5px rgba(0,0,0,.15)}
+.tipo-badge{display:inline-block;background:linear-gradient(120deg,#f9a825,#ffd54f);color:#1b5e20;font-size:.62rem;font-weight:900;padding:4px 11px;border-radius:20px;letter-spacing:.8px;text-transform:uppercase;vertical-align:middle;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-top:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:background .3s,border .3s;position:relative;z-index:1}
+.card h2{font-size:.85rem;text-transform:uppercase;letter-spacing:.9px;color:var(--brand);margin-bottom:14px;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mini{font-size:.82rem;color:var(--muted)}
+.tabs{display:flex;gap:6px;margin-top:18px;border-bottom:2px solid var(--line);overflow-x:auto;scrollbar-width:none;position:relative;z-index:1}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{background:none;border:0;padding:11px 22px;font-size:.95rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;font-family:inherit;transition:.2s;border-radius:8px 8px 0 0;white-space:nowrap;flex-shrink:0}
+.tab-btn:hover{color:var(--brand);background:var(--brand-soft)}
+.tab-btn.active{color:var(--brand);border-bottom-color:var(--brand)}
+.tab-panel{display:none;animation:fadeIn .35s ease}
+.tab-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.subtabs{display:flex;gap:8px;margin:6px 0 14px;flex-wrap:wrap}
+.subtab-btn{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:7px 16px;font-size:.83rem;font-weight:800;cursor:pointer;color:var(--muted);font-family:inherit;transition:.15s}
+.subtab-btn:hover{background:var(--brand-soft);color:var(--brand)}
+.subtab-btn.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+.sub-panel{display:none}
+.sub-panel.active{display:block;animation:fadeIn .3s ease}
+.mini-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:12px}
+.mini-card{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px;transition:background .3s}
+.mini-card h4{font-size:.85rem;margin:0 0 8px;color:var(--ink-soft);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.mini-card h4 small{font-size:.68rem;color:var(--muted);font-weight:700}
+.mini-chart-wrap{position:relative;height:180px}
+.grid-cfg{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+label.f{display:block;font-size:.72rem;font-weight:800;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.6px}
+input[type=date],select,input[type=file],input[type=text]{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font-size:.9rem;font-family:inherit}
+input:focus,select:focus{outline:2px solid var(--brand);outline-offset:1px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
+.btn{border:0;border-radius:9px;padding:9px 16px;font-size:.85rem;font-weight:800;cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap}
+.btn-export{background:linear-gradient(120deg,#2e7d32,#66bb6a);color:#fff}
+.btn-export:hover{filter:brightness(1.1)}
+.btn-ghost{background:var(--card);border:1px solid var(--line);color:var(--ink)}
+.btn-ghost:hover{background:var(--brand-soft)}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.status{font-size:.85rem;margin-top:8px;padding:8px 12px;border-radius:8px;display:none;font-weight:600}
+.status.ok{display:block;background:#d1fae5;color:#065f46;border:1px solid #6ee7b7}
+.status.err{display:block;background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
+.status.info{display:block;background:#dbeafe;color:#1e40af;border:1px solid #93c5fd}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{background:var(--bg);border:1px solid var(--line);border-radius:20px;padding:5px 12px;font-size:.8rem;cursor:pointer;font-weight:700;color:var(--ink-soft);transition:.15s}
+.chip:hover{background:var(--brand);color:#fff;border-color:var(--brand)}
+.resumen-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px;padding:12px;background:var(--bg);border:1px solid var(--line);border-radius:10px}
+.resumen-filters label{font-size:.68rem;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;display:block}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;position:relative;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05);cursor:pointer;transition:.2s}
+.kpi:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.12)}
+.kpi:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,#1b5e20,#66bb6a)}
+.kpi.k-al:before{background:linear-gradient(180deg,#1b5e20,#43a047)}
+.kpi.k-oc:before{background:linear-gradient(180deg,#2e7d32,#66bb6a)}
+.kpi.k-oh:before{background:linear-gradient(180deg,#43a047,#a5d6a7)}
+.kpi.k-sc:before{background:linear-gradient(180deg,#0d3b0d,#2e7d32,#66bb6a)}
+.kpi-l{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--muted)}
+.kpi-v{font-size:2.2rem;font-weight:900;margin:6px 0 2px;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.kpi-s{font-size:.8rem;color:var(--muted);font-weight:500}
+.kpi-v.grad-al{background:linear-gradient(135deg,#1b5e20 0%,#2e7d32 55%,#43a047 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.kpi-v.grad-oc{background:linear-gradient(135deg,#2e7d32 0%,#43a047 50%,#66bb6a 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.kpi-v.grad-oh{background:linear-gradient(135deg,#388e3c 0%,#66bb6a 60%,#a5d6a7 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.kpi-v.grad-sc{background:linear-gradient(135deg,#0d3b0d 0%,#1b5e20 35%,#2e7d32 70%,#66bb6a 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+
+/* HERO VELOCÍMETRO */
+.kpi-hero{
+  display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;
+  padding:24px 28px;margin-bottom:18px;border-radius:16px;
+  background:linear-gradient(135deg,var(--brand-soft) 0%,var(--card) 100%);
+  border:2px solid var(--brand);transition:border-color .4s,background .4s;
+}
+[data-theme="dark"] .kpi-hero{background:linear-gradient(135deg,var(--brand-soft) 0%,var(--card) 100%);}
+.gauge-wrap{position:relative;width:300px;height:190px;flex-shrink:0}
+.gauge-svg{width:100%;height:100%;display:block;overflow:visible}
+.gauge-bg-arc{fill:none;stroke:var(--track);stroke-width:20;stroke-linecap:round}
+.gauge-fg-arc{fill:none;stroke:url(#gaugeGrad);stroke-width:20;stroke-linecap:round;transition:stroke-dashoffset 1.8s cubic-bezier(.17,.67,.25,1)}
+.gauge-center{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);text-align:center;pointer-events:none}
+.gauge-center .gv{
+  font-size:3rem;font-weight:900;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums;
+  background:linear-gradient(135deg,#0d3b0d 0%,#2e7d32 55%,#66bb6a 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+}
+[data-theme="dark"] .gauge-center .gv{background:linear-gradient(135deg,#a5d6a7 0%,#66bb6a 50%,#43a047 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;}
+.gauge-center .gl{font-size:.72rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-top:4px}
+.gauge-ticks{position:absolute;inset:0;pointer-events:none;font-size:.62rem;font-weight:800;color:var(--muted)}
+.gauge-tick{position:absolute;transform:translate(-50%,-50%)}
+
+.hero-message{min-width:0;display:flex;flex-direction:column;gap:10px}
+.hero-msg-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hero-msg-icon{
+  width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  font-size:1.7rem;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.12);
+  transition:background .3s;
+}
+.hero-msg-title{font-size:1.15rem;font-weight:900;letter-spacing:-.01em;line-height:1.15;transition:color .3s}
+.hero-msg-sub{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:2px}
+.hero-msg-body{font-size:.9rem;line-height:1.55;color:var(--ink-soft);font-weight:500}
+.hero-msg-tip{
+  display:flex;gap:10px;padding:12px 14px;border-radius:10px;
+  background:var(--card);border-left:4px solid var(--brand);
+  font-size:.85rem;line-height:1.5;color:var(--ink-soft);
+  transition:border-color .3s;
+}
+.hero-msg-tip .tip-ico{flex-shrink:0;font-size:1.05rem}
+.hero-msg-tip b{color:var(--ink);font-weight:800}
+.hero-msg-meta{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.75rem;color:var(--muted);font-weight:600}
+.hero-msg-meta b{color:var(--ink-soft);font-weight:800}
+
+/* CHART BARRAS */
+.brow{display:grid;grid-template-columns:190px 1fr 80px;gap:10px;align-items:center;margin-bottom:8px;font-size:.9rem}
+.bl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;color:var(--ink-soft)}
+.bt{background:var(--bg);border-radius:20px;height:18px;overflow:hidden;border:1px solid var(--line)}
+.bf{height:100%;border-radius:20px;transition:width .9s cubic-bezier(.4,0,.2,1)}
+.bv{text-align:right;font-variant-numeric:tabular-nums;font-weight:800;color:var(--ink)}
+
+/* TOP3 */
+.top3-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.top3-card{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px 16px;transition:background .3s}
+.top3-card.mejores{border-left:4px solid #2e7d32}
+.top3-card.peores{border-left:4px solid #dc2626}
+.top3-title{font-size:.85rem;text-transform:uppercase;letter-spacing:.8px;font-weight:900;color:var(--brand);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.top3-card.peores .top3-title{color:#dc2626}
+.top3-note{font-size:.7rem;color:var(--muted);font-weight:600;margin-bottom:8px}
+.top-item{display:grid;grid-template-columns:32px 1fr auto;gap:10px;align-items:center;padding:9px 11px;border-radius:9px;background:var(--card);margin-bottom:5px;font-size:.86rem;border:1px solid transparent;transition:opacity .5s ease, transform .5s ease;opacity:0;transform:translateX(-8px)}
+.top-item.show{opacity:1;transform:translateX(0)}
+.top-rank{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#1b5e20,#66bb6a);color:#fff;font-weight:900;font-size:.74rem}
+.top3-card.peores .top-rank{background:linear-gradient(135deg,#991b1b,#dc2626)}
+.top-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;color:var(--ink-soft);display:flex;flex-direction:column}
+.top-name small{font-size:.66rem;color:var(--muted);font-weight:600;margin-top:2px}
+.top-val{font-weight:900;font-variant-numeric:tabular-nums;color:var(--brand);font-size:1rem}
+.top3-card.peores .top-val{color:#dc2626}
+.mini-top-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.mini-top-card{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.mini-top-title{font-size:.75rem;text-transform:uppercase;letter-spacing:.6px;font-weight:900;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.mini-top-item{display:flex;justify-content:space-between;gap:8px;padding:6px 0;font-size:.84rem;border-bottom:1px dashed var(--line)}
+.mini-top-item:last-child{border-bottom:0}
+.mini-top-item .mt-n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;color:var(--ink-soft);font-weight:600}
+.mini-top-item .mt-n b{color:var(--brand)}
+.mini-top-item .mt-v{font-weight:800;font-variant-numeric:tabular-nums}
+.tops-row-title{font-size:.78rem;font-weight:900;text-transform:uppercase;letter-spacing:.6px;margin:10px 0 8px;display:flex;align-items:center;gap:6px}
+
+/* RANKING */
+.rank-table-wrap{width:100%;overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch;border-radius:10px}
+.rank-table-wrap table.t{min-width:720px}
+.rank-table td.rank-name-cell{font-weight:700;color:var(--ink-soft);min-width:180px}
+.rank-table td.rank-name-cell b{display:block;line-height:1.25;color:var(--ink-soft)}
+.rank-table td.rank-name-cell small{display:block;font-weight:500;color:var(--muted);font-size:.72rem;margin-top:2px}
+.rank-table .rank-pos{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#1b5e20,#66bb6a);color:#fff;font-weight:900;font-size:.72rem}
+.rank-table .rank-pos.p1{background:linear-gradient(135deg,#d4af37,#ffd700);color:#5c4300}
+.rank-table .rank-pos.p2{background:linear-gradient(135deg,#a8a8a8,#d4d4d4);color:#333}
+.rank-table .rank-pos.p3{background:linear-gradient(135deg,#a0522d,#cd7f32);color:#fff}
+tr.rank-row{cursor:pointer;transition:background .15s}
+tr.rank-row:hover td{background:var(--brand-soft)!important}
+tr.rank-row.active td{background:var(--brand-soft)!important}
+tr.rank-row.active td:first-child{box-shadow:inset 4px 0 0 var(--brand)}
+.rank-table tfoot td small{font-size:.72rem;font-weight:600;color:var(--muted);margin-top:2px;display:block}
+
+.btn-ver-tareas{
+  background:var(--brand-soft);
+  border:1px solid var(--brand);
+  color:var(--brand-dark);
+  padding:3px 8px;
+  border-radius:6px;
+  font-size:.68rem;
+  font-weight:900;
+  cursor:pointer;
+  font-family:inherit;
+  transition:.15s;
+  white-space:nowrap;
+  flex-shrink:0;
+  line-height:1.2;
+  letter-spacing:.2px;
+}
+.btn-ver-tareas:hover{background:var(--brand);color:#fff;border-color:var(--brand-dark);transform:translateY(-1px);box-shadow:0 2px 6px rgba(46,125,50,.25)}
+.btn-ver-tareas:active{transform:translateY(0)}
+[data-theme="dark"] .btn-ver-tareas{background:var(--brand-soft);color:var(--brand-light);border-color:var(--brand)}
+[data-theme="dark"] .btn-ver-tareas:hover{background:var(--brand);color:#fff}
+
+.week-tasks{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+.week-task{background:var(--bg);border:1px solid var(--line);border-left:4px solid var(--brand);border-radius:10px;padding:10px 12px;transition:background .3s,transform .15s,box-shadow .15s;cursor:pointer}
+.week-task:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.1)}
+.week-task.done{border-left-color:#16a34a}
+.week-task.mid{border-left-color:#f59e0b}
+.week-task.todo{border-left-color:#dc2626}
+.week-task .wt-name{font-weight:800;color:var(--ink);font-size:.86rem;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.week-task .wt-meta{font-size:.72rem;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}
+.week-task .wt-meta b{color:var(--ink-soft)}
+.table-filters{display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:8px;margin-bottom:10px}
+.table-filters input,.table-filters select{font-size:.82rem;padding:7px 10px}
+.scroll{max-height:520px;overflow:auto;border:1px solid var(--tbl-border);border-radius:10px}
+table.t{width:100%;border-collapse:collapse;font-size:.85rem;border:1px solid var(--tbl-border)}
+table.t th,table.t td{border:1px solid var(--tbl-border);padding:9px 10px;vertical-align:top}
+table.t th{background:var(--bg);text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:800;position:sticky;top:0;z-index:2;border-bottom:2px solid var(--brand)}
+table.t td{color:var(--ink-soft)}
+table.t tbody tr:nth-child(even) td{background:var(--tbl-zebra)}
+table.t tbody tr:hover td{background:var(--tbl-hover)}
+table.t td.num{text-align:right;font-variant-numeric:tabular-nums}
+table.t tfoot td{background:var(--brand-soft);font-weight:900;border-top:2px solid var(--brand);color:var(--ink)}
+[data-theme="dark"] table.t tfoot td{background:var(--brand-soft);color:var(--ink)}
+tr.mes-row{cursor:pointer;transition:background .15s}
+tr.mes-row td:first-child:after{content:" 👁";font-size:.7rem;opacity:.45;margin-left:4px}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:800;white-space:nowrap}
+.b-ok{background:#d1fae5;color:#065f46}.b-mid{background:#fef3c7;color:#92400e}
+.b-no{background:#fee2e2;color:#991b1b}.b-goal{background:#cffafe;color:#0e7490}
+.b-none{background:#f1f5f9;color:#64748b}
+[data-theme="dark"] .b-none{background:#2a2f38;color:#94a3b8}
+.pill{display:inline-block;min-width:52px;text-align:center;padding:3px 8px;border-radius:8px;font-weight:800;font-size:.78rem;color:#fff}
+.p-good{background:#16a34a}.p-mid{background:#f59e0b}.p-bad{background:#dc2626}
+.tip{position:fixed;background:#1a2e1a;color:#fff;padding:9px 13px;border-radius:8px;font-size:.82rem;max-width:340px;z-index:9999;pointer-events:none;box-shadow:0 6px 20px rgba(0,0,0,.3);line-height:1.45;opacity:0;transition:opacity .18s}
+.tip.show{opacity:1}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.show{display:flex}
+.modal{background:var(--card);border-radius:16px;padding:24px;max-width:760px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.35);animation:pop .25s ease;position:relative;max-height:88vh;overflow:auto}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h3{font-size:1rem;margin-bottom:12px;color:var(--brand);font-weight:800;padding-right:28px}
+.modal p{font-size:.88rem;color:var(--ink-soft);margin-bottom:8px;line-height:1.55}
+.modal .close{position:absolute;top:12px;right:16px;background:none;border:0;font-size:1.3rem;cursor:pointer;color:var(--muted);font-weight:800}
+.chart-wrap{position:relative;height:270px;margin-top:6px}
+.chart-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+footer.rpt{margin-top:26px;text-align:center;font-size:.78rem;color:var(--muted);position:relative;z-index:1}
+.rpt-head{background:linear-gradient(120deg,#2e7d32,#66bb6a);color:#fff;border-radius:16px;padding:22px 24px;margin-bottom:6px}
+.rpt-head h1{margin:0 0 6px;font-size:1.35rem}
+.rpt-head p{margin:2px 0;font-size:.85rem;opacity:.95}
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-state svg{width:80px;height:80px;opacity:.3;margin-bottom:16px}
+.empty-state h3{font-size:1.1rem;color:var(--ink-soft);margin-bottom:8px}
+.empty-state p{font-size:.9rem}
+.pdf-section-title{background:#2e7d32;color:#fff;padding:8px 14px;border-radius:8px;font-weight:800;font-size:14px;margin:18px 0 8px;break-before:page;page-break-before:always}
+.pdf-section-title:first-of-type{break-before:auto;page-break-before:auto;margin-top:0}
+#pdf-overlay{position:fixed;inset:0;background:rgba(255,255,255,.98);z-index:2147483647;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;font-family:"Segoe UI",sans-serif;color:#1a2029}
+@keyframes pdfspin{to{transform:rotate(360deg)}}
+.pdf-spinner{width:60px;height:60px;border:5px solid #e0e4ea;border-top-color:#2e7d32;border-radius:50%;animation:pdfspin .9s linear infinite}
+.pdf-overlay-title{font-size:16px;font-weight:700}
+.pdf-overlay-sub{font-size:13px;color:#64748b}
+
+@media(max-width:900px){
+  .wrap{padding:16px 14px 50px}
+  header.top{padding:16px 18px}
+  header.top h1{font-size:1.2rem}
+  .kpis{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+  .brow{grid-template-columns:150px 1fr 70px}
+  .table-filters{grid-template-columns:1fr 1fr}
+  .resumen-filters{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .kpi-hero{grid-template-columns:1fr;gap:18px;padding:20px;text-align:center}
+  .gauge-wrap{margin:0 auto}
+  .hero-msg-head{justify-content:center}
+  .hero-msg-tip{text-align:left}
+}
+@media(max-width:640px){
+  html{font-size:14px}
+  body{padding-bottom:1rem}
+  .wrap{padding:10px 10px 40px}
+  header.top{padding:14px 14px;gap:10px;border-radius:12px}
+  .brand{gap:10px;width:100%}
+  .brand-logo{width:44px;height:44px;padding:5px;border-radius:10px}
+  header.top h1{font-size:1.02rem;letter-spacing:0}
+  header.top p{font-size:.72rem}
+  .header-tools{width:100%;justify-content:space-between;gap:6px}
+  .seg{padding:2px}
+  .seg-btn{padding:5px 8px;font-size:.72rem;min-width:28px}
+  .tipo-badge{font-size:.55rem;padding:3px 8px;letter-spacing:.5px}
+  .tabs{margin-top:12px;gap:2px}
+  .tab-btn{padding:9px 14px;font-size:.82rem;border-radius:6px 6px 0 0}
+  .card{padding:14px;margin-top:12px;border-radius:12px}
+  .card h2{font-size:.78rem;margin-bottom:10px;letter-spacing:.6px}
+  .kpis{grid-template-columns:repeat(2,1fr);gap:8px}
+  .kpi{padding:12px 12px;border-radius:12px}
+  .kpi-v{font-size:1.55rem;margin:4px 0 0}
+  .kpi-l{font-size:.62rem;letter-spacing:.5px}
+  .kpi-s{font-size:.68rem;margin-top:2px}
+  .grid-cfg{grid-template-columns:1fr !important}
+  .grid-cfg > div{grid-column:auto !important}
+  .btns{grid-column:auto !important;width:100%}
+  .btns .btn{flex:1}
+  .chips{gap:5px;margin-top:8px}
+  .chip{padding:5px 10px;font-size:.72rem}
+  .resumen-filters{grid-template-columns:1fr;gap:8px;padding:10px}
+  .resumen-filters label{font-size:.62rem}
+  input[type=date],select,input[type=file],input[type=text]{padding:10px 12px;font-size:16px}
+  .chart-row{grid-template-columns:1fr;gap:14px}
+  .chart-wrap{height:220px}
+  .mini-grid{grid-template-columns:1fr}
+  .mini-top-grid{grid-template-columns:1fr}
+  .top3-grid{grid-template-columns:1fr}
+  .week-tasks{grid-template-columns:1fr}
+  .brow{grid-template-columns:110px 1fr 55px;gap:6px;font-size:.78rem}
+  .bl{font-size:.75rem}
+  .bv{font-size:.8rem}
+  .bt{height:14px}
+  .top-item{grid-template-columns:26px 1fr auto;gap:8px;padding:8px 9px}
+  .top-rank{width:22px;height:22px;font-size:.68rem}
+  .top-name{font-size:.8rem}
+  .top-name small{font-size:.62rem}
+  .top-val{font-size:.9rem}
+  .table-filters{grid-template-columns:1fr;gap:6px}
+  .table-filters input,.table-filters select{font-size:16px}
+  table.t{font-size:.75rem;min-width:0}
+  table.t th,table.t td{padding:6px 6px}
+  table.t th{font-size:.6rem;letter-spacing:.3px}
+  .scroll{max-height:400px}
+  .rank-table-wrap table.t{min-width:640px;font-size:.72rem}
+  .rank-table th,.rank-table td{padding:6px 5px}
+  .rank-table th{font-size:.58rem}
+  .rank-table td.rank-name-cell{min-width:130px;font-size:.78rem}
+  .rank-table td.rank-name-cell small{font-size:.62rem}
+  .rank-table .rank-pos{width:22px;height:22px;font-size:.65rem}
+  .rank-table .pill{min-width:44px;padding:2px 6px;font-size:.7rem}
+  .btn-ver-tareas{font-size:.62rem;padding:2px 6px}
+  .modal{padding:18px;max-width:100%;border-radius:12px}
+  .modal h3{font-size:.92rem}
+  .modal p{font-size:.82rem}
+  .loader-logo{width:80px;height:80px}
+  .loader-title{font-size:1.1rem}
+  .loader-bar{width:200px}
+  .rpt-head{padding:16px 18px;border-radius:12px}
+  .rpt-head h1{font-size:1.15rem}
+  .rpt-head p{font-size:.75rem}
+  #pdf-overlay{padding:20px}
+  .pdf-spinner{width:50px;height:50px;border-width:4px}
+  .kpi-hero{padding:18px 16px;gap:14px;border-radius:12px}
+  .gauge-wrap{width:230px;height:145px}
+  .gauge-center .gv{font-size:2.2rem}
+  .hero-msg-icon{width:44px;height:44px;font-size:1.4rem;border-radius:12px}
+  .hero-msg-title{font-size:1rem}
+  .hero-msg-body{font-size:.82rem}
+  .hero-msg-tip{font-size:.78rem;padding:10px 12px}
+}
+@media(max-width:380px){
+  html{font-size:13px}
+  .kpis{grid-template-columns:1fr}
+  .kpi-v{font-size:1.4rem}
+  .brand-logo{width:38px;height:38px}
+  header.top h1{font-size:.94rem}
+  .seg-btn{padding:4px 6px;font-size:.68rem;min-width:24px}
+  .tab-btn{padding:8px 10px;font-size:.75rem}
+  .card{padding:12px}
+  .gauge-wrap{width:200px;height:125px}
+  .gauge-center .gv{font-size:1.85rem}
+}
+</style>
+</head>
+<body data-theme="light">
+
+<!-- ✅ PANTALLA DE CARGA: LOGO EXPLOTA Y CUBRE LA PANTALLA -->
+<div id="preloader">
+  <div class="loader-logo">
+    <img src="https://anei.org.co/hubfs/logooooooo.png" alt="ANEI"
+         onerror="this.style.display='none';this.parentElement.innerHTML='<b style=font-size:26px;color:#5D4037>ANEI</b>'">
+  </div>
+  <div class="loader-titles">
+    <div class="loader-title">Alineación y Ocupación <span style="color:#2e7d32">· ANEI</span></div>
+    <div class="loader-sub">PLANNER · BUSINESS INTELLIGENCE</div>
+  </div>
+  <div class="loader-bar"><div class="loader-bar-inner" id="loaderBarInner"></div></div>
+</div>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="brand-logo"><img src="https://anei.org.co/hubfs/logooooooo.png" alt="ANEI" onerror="this.style.display='none';this.parentElement.innerHTML='<b style=font-size:16px;color:#2e7d32>ANEI</b>'"></div>
+      <div>
+        <h1>Alineación y Ocupación <span id="tipoBadge" class="tipo-badge" style="display:none">—</span></h1>
+        <p id="topSub">Responsable: Jesús Daniel Mora Valdés · Auxiliar de BI</p>
+      </div>
+    </div>
+    <div class="header-tools">
+      <div class="seg" id="themeSeg">
+        <button class="seg-btn active" data-theme="light">☀️</button>
+        <button class="seg-btn" data-theme="gray">🌫️</button>
+        <button class="seg-btn" data-theme="dark">🌙</button>
+      </div>
+      <div class="seg" id="fontSeg">
+        <button class="seg-btn" data-font="small">A-</button>
+        <button class="seg-btn active" data-font="normal">A</button>
+        <button class="seg-btn" data-font="large">A+</button>
+        <button class="seg-btn" data-font="xlarge">A++</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="resumen">📊 Resumen</button>
+    <button class="tab-btn" data-tab="graficos">📈 Gráficos</button>
+    <button class="tab-btn" data-tab="datos">📋 Datos</button>
+  </div>
+
+  <div class="tab-panel active" id="panel-resumen">
+    <section class="card" id="configSection">
+      <h2>⚙️ Configuración <span class="mini" style="text-transform:none;letter-spacing:0;font-weight:600;margin-left:auto">— Aplica a TODAS las pestañas</span></h2>
+      <div class="grid-cfg">
+        <div style="grid-column:span 2">
+          <label class="f" for="fileInput">📁 Cargar Excel (.xlsx / .xls / .csv)</label>
+          <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
+        </div>
+        <div>
+          <label class="f" for="fIni">Fecha inicial</label>
+          <input type="date" id="fIni">
+        </div>
+        <div>
+          <label class="f" for="fFin">Fecha final</label>
+          <input type="date" id="fFin">
+        </div>
+        <div>
+          <label class="f" for="criterio">Criterio</label>
+          <select id="criterio">
+            <option value="todos">Todos (que toquen el período)</option>
+            <option value="inicio">Tareas que INICIAN</option>
+            <option value="fin">Tareas que FINALIZAN</option>
+            <option value="solape">Tareas que se SOLAPAN</option>
+          </select>
+        </div>
+        <div>
+          <label class="f" for="baseHoras">Base de horas</label>
+          <select id="baseHoras">
+            <option value="periodo">42 h × semanas</option>
+            <option value="fijo">42 h fijas</option>
+          </select>
+        </div>
+        <div class="btns" style="grid-column:span 2">
+          <button class="btn btn-export" id="btnReporte">⬇ HTML</button>
+          <button class="btn btn-ghost" id="btnPDF">📄 PDF</button>
+        </div>
+      </div>
+      <div id="status" class="status"></div>
+      <div class="chips">
+        <span class="chip" data-range="semana">📅 Esta semana</span>
+        <span class="chip" data-range="semanaPasada">⬅ Semana pasada</span>
+        <span class="chip" data-range="mes">📆 Este mes</span>
+        <span class="chip" data-range="mesPasado">⬅ Mes pasado</span>
+        <span class="chip" data-range="todo">🗓️ Todo el proyecto</span>
+      </div>
+    </section>
+    <div id="kpiSection"></div>
+    <div id="compSection"></div>
+    <div id="top3Section"></div>
+    <div id="weekSection"></div>
+    <div id="evolSection"></div>
+  </div>
+
+  <div class="tab-panel" id="panel-graficos"><div id="chartSection"></div></div>
+  <div class="tab-panel" id="panel-datos"><div id="dataSection"></div></div>
+
+  <footer class="rpt">
+    ANEI · Alineación y Ocupación · Jesús Daniel Mora Valdés
+  </footer>
+</div>
+
+<div class="modal-bg" id="modalBg"><div class="modal"><button class="close" id="modalClose">×</button><h3 id="modalTitle">Fuente del dato</h3><div id="modalBody"></div></div></div>
+<div class="tip" id="tip"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script id="appScript">
+/* ═══════════════════════════════════════════════════════════════
+   1. LÓGICA DE LA PANTALLA DE CARGA — ZOOM-THROUGH DEL LOGO
+   ═══════════════════════════════════════════════════════════════ */
+const LOADER_MIN_MS = 3000;
+const LOADER_MAX_MS = 6000;
+const RANDOM_LOAD_TIME = Math.floor(Math.random() * (LOADER_MAX_MS - LOADER_MIN_MS + 1)) + LOADER_MIN_MS;
+console.log(`[Loader] Duración aleatoria: ${RANDOM_LOAD_TIME} ms`);
+
+const loaderBar = document.getElementById("loaderBarInner");
+if (loaderBar) {
+    loaderBar.style.animationDuration = RANDOM_LOAD_TIME + "ms";
+}
+
+let _preloaderHidden = false;
+function ocultarPreloader(){
+  if(_preloaderHidden) return;
+  _preloaderHidden = true;
+  const p = document.getElementById("preloader");
+  const wrap = document.querySelector(".wrap");
+  // ✅ La interfaz "nace" al mismo tiempo que el logo comienza a explotar
+  if(wrap) wrap.classList.add("show");
+  if(!p) return;
+  p.classList.add("hide");
+  // ✅ Esperamos a que la transición completa termine (fade 1.4s + zoom 1.5s) antes de quitar el DOM
+  setTimeout(() => {
+    if(p && p.parentNode) p.parentNode.removeChild(p);
+  }, 2000);
+}
+
+setTimeout(ocultarPreloader, RANDOM_LOAD_TIME);
+setTimeout(ocultarPreloader, 7000);
+
+/* ═══════════════ ESTADO ═══════════════ */
+const RESPONSABLE = "Jesús Daniel Mora Valdés · Auxiliar de BI (Business Intelligence)";
+const state = {
+  tasks: [],
+  meta: {proyecto:"", propietario:RESPONSABLE},
+  tipo: "",
+  origen: "",
+  charts: {},
+  miniCharts: {},
+  _animObserver: null,
+  _resumenFilter: {resp:"", proyecto:"", estado:""},
+  _weekTasks: [],
+  _mesesData: []
+};
+const SEMANAS_MES = 4.345;
+
+/* ═══════════════ PLUGINS CHART.JS ═══════════════ */
+if(typeof Chart !== "undefined"){
+  Chart.register({
+    id: 'valueLabels',
+    afterDatasetsDraw(chart){
+      const opts = chart.options.plugins && chart.options.plugins.valueLabels;
+      if(!opts || opts.enabled === false) return;
+      if(chart.config.type !== 'bar') return;
+      const ctx = chart.ctx;
+      const horiz = chart.options.indexAxis === 'y';
+      ctx.save();
+      ctx.font = 'bold 11px "Segoe UI", Roboto, sans-serif';
+      ctx.fillStyle = 'rgba(26,32,41,0.55)';
+      chart.data.datasets.forEach((dataset, di) => {
+        const meta = chart.getDatasetMeta(di);
+        if(meta.hidden) return;
+        meta.data.forEach((element, i) => {
+          const v = dataset.data[i];
+          if(v === null || v === undefined || isNaN(v)) return;
+          const label = (typeof v === 'number') ? v.toFixed(0) + '%' : String(v);
+          const pos = element.tooltipPosition();
+          if(horiz){
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, pos.x + 4, pos.y);
+          } else {
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(label, pos.x, pos.y - 3);
+          }
+        });
+      });
+      ctx.restore();
+    }
+  });
+
+  Chart.register({
+    id: 'doughnutLabels',
+    afterDatasetsDraw(chart){
+      const opts = chart.options.plugins && chart.options.plugins.doughnutLabels;
+      if(!opts || opts.enabled === false) return;
+      if(chart.config.type !== 'doughnut') return;
+      const ctx = chart.ctx;
+      const meta = chart.getDatasetMeta(0);
+      if(!meta || meta.hidden || !meta.data) return;
+      const total = chart.data.datasets[0].data.reduce((a,b)=>a+(b||0),0);
+      if(!total) return;
+      ctx.save();
+      ctx.font = 'bold 12px "Segoe UI", Roboto, sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = 'rgba(0,0,0,.55)';
+      ctx.lineWidth = 3;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      meta.data.forEach((element, i) => {
+        const v = chart.data.datasets[0].data[i];
+        if(!v) return;
+        const angle = Math.abs(element.endAngle - element.startAngle);
+        if(angle < 0.28) return;
+        const pct = Math.round(v / total * 100) + '%';
+        const pos = element.tooltipPosition();
+        ctx.strokeText(pct, pos.x, pos.y);
+        ctx.fillText(pct, pos.x, pos.y);
+      });
+      ctx.restore();
+    }
+  });
+}
+
+/* ═══════════════ UTILIDADES ═══════════════ */
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+function parseNum(v){
+  if(v===null||v===undefined||v==="") return null;
+  if(typeof v==="number") return isNaN(v)?null:v;
+  let s=String(v).trim(); if(!s) return null;
+  const m=s.match(/-?\d+(?:[.,]\d+)?/); if(!m) return null;
+  let t=m[0];
+  if(t.includes(",")) t=t.replace(/\./g,"").replace(",",".");
+  const n=parseFloat(t); return isNaN(n)?null:n;
+}
+function parsePct(v){
+  if(v===null||v===undefined||v==="") return 0;
+  if(typeof v==="string"){
+    const s=v.trim();
+    if(s.endsWith("%")){ const n=parseNum(s); return n===null?0:n/100; }
+  }
+  let n=parseNum(v); if(n===null) return 0;
+  if(n>1.0001) n=n/100;
+  return Math.max(0,Math.min(1,n));
+}
+function parseDate(v){
+  if(v===null||v===undefined||v==="") return null;
+  if(v instanceof Date) return isNaN(v)?null:new Date(v.getFullYear(),v.getMonth(),v.getDate());
+  if(typeof v==="number"){ const d=new Date(Math.round((v-25569)*86400000)); return isNaN(d)?null:new Date(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()); }
+  const s=String(v).trim(); if(!s) return null;
+  let m=s.match(/^(\d{4})-(\d{2})-(\d{2})/); if(m) return new Date(+m[1],+m[2]-1,+m[3]);
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/); if(m) return new Date(+m[3],+m[2]-1,+m[1]);
+  const d=new Date(s); return isNaN(d)?null:new Date(d.getFullYear(),d.getMonth(),d.getDate());
+}
+const toISO = d => d ? `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}` : "";
+function fmtDate(d){
+  if(!d) return "—";
+  const dd = (d instanceof Date) ? d : new Date(d);
+  if(isNaN(dd)) return "—";
+  return dd.toLocaleDateString("es-CO",{day:"2-digit",month:"short",year:"numeric"}).replace(".","");
+}
+function fmtH(n){ return (Math.round(n*100)/100).toLocaleString("es-CO",{maximumFractionDigits:2})+" h"; }
+function fmtP(n){ return (Math.round(n*10)/10).toLocaleString("es-CO",{maximumFractionDigits:1})+"%"; }
+function startOfWeek(d){ const x=new Date(d); const day=(x.getDay()+6)%7; x.setDate(x.getDate()-day); x.setHours(0,0,0,0); return x; }
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+const MESES_CORTOS = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const MESES_LARGOS = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+
+function shortGoal(g){
+  if(!g) return "";
+  const s = String(g).toLowerCase();
+  if(s.includes("ahorro")) return "Ahorros financieros";
+  if(s.includes("alianza")) return "Alianzas renovadas";
+  if(s.includes("propuesta")) return "Propuestas aprobadas";
+  if(s.includes("formativo")) return "Procesos formativos";
+  if(s.includes("participación")||s.includes("participacion")) return "Participación en proyectos";
+  if(s.includes("millón de kilos")||s.includes("millon de kilos")) return "Familias >1M kg";
+  if(s.includes("500,000 kg")||s.includes("500000 kg")) return "Familias 500k kg";
+  if(s.includes("satisfacción")||s.includes("satisfaccion")) return "Satisfacción familias";
+  if(s.includes("fomentar la estrategia")) return "Familias productoras";
+  if(s.includes("distribución zonificada")||s.includes("distribucion zonificada")) return "Distribución cosechas";
+  if(s.includes("cliente comprador")) return "Acompañamiento cliente";
+  if(s.includes("20 lideres formados")) return "Líderes formados";
+  if(s.includes("20 lideres capacitados")||s.includes("20 líderes capacitados")) return "Líderes capacitados";
+  if(s.includes("3 acuerdos")) return "Acuerdos comunitarios";
+  if(s.length > 42) return g.substring(0,42)+"…";
+  return g;
+}
+
+/* ✅ EXTRACCIÓN DINÁMICA Y ABIERTA DEL NOMBRE DEL PLANNER */
+function extractPlannerName(metaProyecto, filename){
+  let raw = (metaProyecto || "").trim();
+  if (!raw && filename) {
+    raw = filename.replace(/\.(xlsx|xls|csv)$/i, "").replace(/_/g, " ").trim();
+  }
+  raw = raw.replace(/alineaci[oó]n\s*y\s*ocupaci[oó]n/gi, "").replace(/planner/gi, "").trim();
+  let finalName = "";
+  if (raw.includes("-")) {
+    const parts = raw.split("-");
+    let lastPart = parts[parts.length - 1].trim();
+    if (lastPart.length > 0) finalName = lastPart;
+  }
+  if (!finalName) {
+    finalName = raw.replace(/^[\s\-_|]+|[\s\-_|]+$/g, "").trim();
+  }
+  if (!finalName) return "Proyectos";
+  return finalName.replace(/\b\w/g, c => c.toUpperCase());
+}
+
+/* ═══════════════ MENSAJES DINÁMICOS ═══════════════ */
+function getScoreLevel(value){
+  if(value >= 90) return {level:"excelente", icon:"🏆", color:"#0d3b0d", bg:"#dcfce7", border:"#16a34a", title:"Desempeño sobresaliente", body:"Cumplimiento excepcional en todas las métricas del período.", tip:"Documenta las prácticas que llevaron a este resultado y compártelas con el equipo para replicarlas."};
+  if(value >= 80) return {level:"muy-bueno", icon:"🌟", color:"#1b5e20", bg:"#d1fae5", border:"#22c55e", title:"Desempeño muy bueno", body:"Se superan los objetivos en la mayoría de las métricas evaluadas.", tip:"Mantén el ritmo de registro y cierra las brechas menores para alcanzar la excelencia."};
+  if(value >= 70) return {level:"bueno", icon:"✅", color:"#2e7d32", bg:"#eaf6eb", border:"#4ade80", title:"Buen desempeño", body:"El resultado general está por encima del promedio esperado.", tip:"Refuerza las métricas más bajas y asegúrate de cerrar tareas críticas antes del corte."};
+  if(value >= 60) return {level:"aceptable", icon:"⚡", color:"#65a30d", bg:"#ecfccb", border:"#84cc16", title:"Desempeño aceptable", body:"Cumplimiento razonable, pero con margen de mejora visible.", tip:"Prioriza las tareas con mayor peso, revisa horas subregistradas y completa los formularios pendientes."};
+  if(value >= 50) return {level:"medio", icon:"⚠️", color:"#d97706", bg:"#fef3c7", border:"#f59e0b", title:"Desempeño medio", body:"El resultado se encuentra en zona intermedia y requiere atención.", tip:"Revisa la planificación semanal, verifica el registro de horas y asegúrate de que cada tarea tenga un Goal asignado."};
+  if(value >= 30) return {level:"bajo", icon:"🔻", color:"#ea580c", bg:"#ffedd5", border:"#fb923c", title:"Desempeño bajo", body:"Los indicadores están por debajo del objetivo mínimo esperado.", tip:"Revisa prioridades con el líder de proceso, redistribuye la carga y documenta los bloqueos que impiden avanzar."};
+  return {level:"critico", icon:"🔴", color:"#991b1b", bg:"#fee2e2", border:"#dc2626", title:"Desempeño crítico", body:"El resultado del período está muy por debajo de lo esperado.", tip:"Intervención urgente: revisa el plan de trabajo, identifica cuellos de botella y coordina una reunión de seguimiento inmediata."};
+}
+
+function getMetricAdvice(metric, value){
+  const v = value;
+  if(metric === "score"){
+    if(v >= 85) return "El Score refleja un excelente balance entre alineación y horas completadas.";
+    if(v >= 70) return "Score sólido. Cuida mantener el equilibrio entre tareas con Goal y horas registradas.";
+    if(v >= 50) return "Score intermedio: probablemente falten tareas con Goal asignado o haya pocas horas registradas.";
+    if(v >= 30) return "Score bajo: revisa tareas completadas y su alineación con objetivos estratégicos.";
+    return "Score crítico: hay muy pocas tareas con Goal o muy pocas horas completadas.";
+  }
+  if(metric === "alineacion"){
+    if(v >= 85) return "Excelente alineación: casi todas las tareas completadas tienen un Goal asociado.";
+    if(v >= 70) return "Buena alineación. Procura que las tareas restantes también tengan Goal antes de cerrarlas.";
+    if(v >= 50) return "Alineación media: la mitad de las tareas completadas no tienen Goal asignado.";
+    if(v >= 30) return "Alineación baja: revisa que cada tarea tenga un objetivo claro antes de iniciarla.";
+    return "Alineación crítica: casi ninguna tarea completada está vinculada a un Goal.";
+  }
+  if(metric === "ocupTareas"){
+    if(v >= 85) return "Excelente tasa de cierre: casi todas las tareas del período se completaron.";
+    if(v >= 70) return "Buena ocupación de tareas. Revisa cuáles quedaron pendientes y planifica su cierre.";
+    if(v >= 50) return "Ocupación media: hay tareas pendientes que podrían impactar los resultados.";
+    if(v >= 30) return "Ocupación baja: verifica si hay bloqueos o falta de priorización.";
+    return "Ocupación crítica: muy pocas tareas del período fueron completadas.";
+  }
+  if(metric === "ocupHoras"){
+    if(v >= 85) return "Excelente aprovechamiento de horas: la base de trabajo se cumple casi en su totalidad.";
+    if(v >= 70) return "Buena ocupación de horas. Revisa si hay subregistro en tareas ya realizadas.";
+    if(v >= 50) return "Ocupación media: verifica el registro diario de horas y esfuerzos completados.";
+    if(v >= 30) return "Ocupación baja: puede haber subregistro o falta de tareas con esfuerzo definido.";
+    return "Ocupación crítica: hay muy pocas horas completadas respecto a la base esperada.";
+  }
+  return "";
+}
+
+function renderHeroMessage(promedio, metrics){
+  const lvl = getScoreLevel(promedio);
+  const items = [
+    {key:"alineacion", label:"Alineación", value:metrics.alineacion},
+    {key:"ocupTareas", label:"Ocupación de tareas", value:metrics.ocupTareas},
+    {key:"ocupHoras",  label:"Ocupación de horas",  value:metrics.ocupHoras},
+    {key:"score",      label:"Score",               value:metrics.score}
+  ];
+  const lowest = items.slice().sort((a,b)=>a.value - b.value)[0];
+  const advice = getMetricAdvice(lowest.key, lowest.value);
+
+  return {
+    lvl,
+    messageHTML: `
+      <div class="hero-message">
+        <div class="hero-msg-head">
+          <div class="hero-msg-icon" style="background:${lvl.bg};border:2px solid ${lvl.border}">${lvl.icon}</div>
+          <div>
+            <div class="hero-msg-title" style="color:${lvl.color}">${lvl.title}</div>
+            <div class="hero-msg-sub">Promedio general del período</div>
+          </div>
+        </div>
+        <div class="hero-msg-body">${lvl.body}</div>
+        <div class="hero-msg-tip" style="border-left-color:${lvl.border}">
+          <span class="tip-ico">💡</span>
+          <div><b>Consejo:</b> ${lvl.tip}</div>
+        </div>
+        <div class="hero-msg-tip" style="border-left-color:${lvl.border}">
+          <span class="tip-ico">🎯</span>
+          <div><b>Foco inmediato — ${lowest.label} (${lowest.value.toFixed(1)}%):</b> ${advice}</div>
+        </div>
+      </div>
+    `
+  };
+}
+
+/* ═══════════════ EXCEL ═══════════════ */
+function parseWorkbook(wb, filename){
+  const sheetName = wb.SheetNames.find(n=>/tarea/i.test(n)) || wb.SheetNames[0];
+  const ws = wb.Sheets[sheetName];
+  const rows = XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null,blankrows:false});
+  const meta = {proyecto:""};
+  for(let i=0;i<Math.min(rows.length,15);i++){
+    const a=String(rows[i]?.[0]??"").toLowerCase().trim();
+    const b=rows[i]?.[1];
+    if(a.includes("nombre del proyecto")) meta.proyecto=String(b??"");
+  }
+  let hi=-1;
+  for(let i=0;i<Math.min(rows.length,60);i++){
+    const r=(rows[i]||[]).map(c=>String(c??"").trim().toLowerCase());
+    if(r.some(c=>c==="nombre"||c.includes("nombre de tarea")) && r.some(c=>c.includes("inicio"))){ hi=i; break; }
+  }
+  if(hi<0) throw new Error("No se encontró la fila de encabezados de tareas.");
+  const hdr = rows[hi].map(c=>String(c??"").trim().toLowerCase());
+  const idx = {};
+  hdr.forEach((h,i)=>{ if(!(h in idx)) idx[h]=i; });
+  const col = (...names)=>{ for(const n of names){ if(n in idx) return idx[n]; } return -1; };
+  const cNum=col("número de tarea","numero de tarea","id","#");
+  const cNom=col("nombre","nombre de tarea","tarea");
+  const cPro=col("proyecto","proyectos");
+  const cPct=col("% completado","%completado","completado");
+  const cEsf=col("esfuerzo");
+  const cEsc=col("esfuerzo completado");
+  const cIni=col("inicio","fecha de inicio");
+  const cFin=col("finalización","finalizacion","fecha de finalización");
+  const cEti=col("etiquetas");
+  const cAsi=col("asignado a");
+  const cGoal=col("goal","objetivo");
+  const tasks=[];
+  for(let i=hi+1;i<rows.length;i++){
+    const r=rows[i]; if(!r) continue;
+    const nombre = cNom>=0 ? String(r[cNom]??"").trim() : "";
+    const ini = cIni>=0 ? parseDate(r[cIni]) : null;
+    if(!nombre && !ini) continue;
+    if(/^tarea sin t[íi]tulo$/i.test(nombre) && !ini) continue;
+    const pct = cPct>=0 ? parsePct(r[cPct]) : 0;
+    const esf = cEsf>=0 ? parseNum(r[cEsf]) : null;
+    let comp = cEsc>=0 ? parseNum(r[cEsc]) : null;
+    if(comp===null) comp = esf!==null ? esf*pct : 0;
+    const eti = cEti>=0 ? String(r[cEti]??"").trim() : "";
+    const asi = cAsi>=0 ? String(r[cAsi]??"").trim() : "";
+    const goalRaw = cGoal>=0 ? String(r[cGoal]??"").trim() : "";
+    tasks.push({
+      num: cNum>=0 ? String(r[cNum]??"") : String(tasks.length+1),
+      nombre, proyecto: cPro>=0 ? String(r[cPro]??"").trim() : "",
+      pct, esfuerzo: esf, completado: comp||0,
+      inicio: ini, fin: (cFin>=0 ? parseDate(r[cFin]) : null) || ini,
+      asignado: eti || asi, goal: goalRaw ? "X" : "", goalFull: goalRaw
+    });
+  }
+  if(!tasks.length) throw new Error("El archivo no contiene tareas legibles.");
+  
+  const tipo = extractPlannerName(meta.proyecto, filename);
+  
+  return {tasks, meta, tipo};
+}
+
+/* ═══════════════ MÉTRICAS ═══════════════ */
+/* ✅ FIX: filtro de fechas de ⚙️ Configuración SIEMPRE aplicado (incluso con "Todos") */
+function filtrar(tasks, ini, fin, criterio){
+  return tasks.filter(t=>{
+    const s = t.inicio;
+    const f = t.fin || t.inicio;
+    if(!s) return false;
+    // Filtro base OBLIGATORIO: la tarea debe tocar el período configurado
+    if(!(s <= fin && f >= ini)) return false;
+    // Filtros adicionales por criterio
+    if(criterio==="inicio") return s >= ini && s <= fin;
+    if(criterio==="fin")    return f >= ini && f <= fin;
+    if(criterio==="solape") return true; // ya validado por el filtro base
+    return true; // "todos" = cualquier tarea que toque el período
+  });
+}
+function filtrarResumen(tasks){
+  let r = tasks;
+  const f = state._resumenFilter;
+  if(f.resp) r = r.filter(t => (t.asignado||"").split(";").map(s=>s.trim()).includes(f.resp));
+  if(f.proyecto) r = r.filter(t => (t.proyecto||"Sin proyecto") === f.proyecto);
+  if(f.estado){
+    r = r.filter(t => {
+      const e = t.pct>=0.999?"completada":t.pct>0?"encurso":"pendiente";
+      return e === f.estado;
+    });
+  }
+  return r;
+}
+function calcularMetricas(tasks, baseHoras){
+  const total = tasks.length;
+  const completadas = tasks.filter(t=>t.pct>=0.999).length;
+  const conGoal = tasks.filter(t=>t.pct>=0.999 && t.goal).length;
+  const horas = tasks.reduce((a,t)=>a+(t.completado||0),0);
+  const alineacion = total ? conGoal/total*100 : 0;
+  const ocupTareas = total ? completadas/total*100 : 0;
+  const ocupHoras  = baseHoras ? horas/baseHoras*100 : 0;
+  const score = Math.min(100, 0.25*alineacion + 0.25*ocupTareas + 0.50*ocupHoras);
+  return {total, completadas, conGoal, horas, alineacion, ocupTareas, ocupHoras, score};
+}
+function agrupar(tasks, keyFn){
+  const map=new Map();
+  tasks.forEach(t=>{
+    let keys = keyFn(t);
+    if(!Array.isArray(keys)) keys=[keys];
+    keys = keys.map(k=>String(k||"").trim()).filter(Boolean);
+    if(!keys.length) keys=["Sin asignar"];
+    keys.forEach(k=>{ if(!map.has(k)) map.set(k,[]); map.get(k).push(t); });
+  });
+  return map;
+}
+function getBaseHoras(ini, fin){
+  const el = $("#baseHoras");
+  const modo = el ? el.value : "periodo";
+  if(modo==="fijo") return {base:42, semanas:1, etiqueta:"42 h (semanal)"};
+  const dias = Math.max(1, Math.round((fin-ini)/86400000)+1);
+  const semanas = Math.max(1, Math.round((dias/7)*10)/10);
+  return {base:42*semanas, semanas, etiqueta:`42 h × ${semanas.toLocaleString("es-CO")} sem = ${Math.round(42*semanas)} h`};
+}
+
+/* ═══════════════ ANIMACIÓN UNIVERSAL ═══════════════ */
+const ANIM_DUR = 1400;
+function easeOutCubic(t){ return 1 - Math.pow(1-t, 3); }
+
+function animarNumeroEl(el){
+  const target = parseFloat(el.dataset.count);
+  if(isNaN(target)) return;
+  const dec = parseInt(el.dataset.dec || "0", 10);
+  const suffix = el.dataset.suffix || "";
+  const prefix = el.dataset.prefix || "";
+  const start = performance.now();
+  const dur = parseInt(el.dataset.dur || ANIM_DUR, 10);
+  function step(now){
+    const t = Math.min(1, (now-start)/dur);
+    const eased = easeOutCubic(t);
+    const v = target * eased;
+    el.textContent = prefix + v.toLocaleString("es-CO",{minimumFractionDigits:dec, maximumFractionDigits:dec}) + suffix;
+    if(t<1) requestAnimationFrame(step);
+    else el.textContent = prefix + target.toLocaleString("es-CO",{minimumFractionDigits:dec, maximumFractionDigits:dec}) + suffix;
+  }
+  requestAnimationFrame(step);
+}
+function animarContadoresEn(root){
+  if(!root) return;
+  root.querySelectorAll(".cnt[data-count]").forEach(animarNumeroEl);
+}
+function dispararAnimacionesPanel(panel){
+  if(!panel) return;
+  animarContadoresEn(panel);
+  panel.querySelectorAll(".bf[data-w]").forEach(el=>{ el.style.width = el.dataset.w + "%"; });
+  panel.querySelectorAll(".top-item").forEach((el,i)=>{
+    el.classList.remove("show");
+    setTimeout(()=>el.classList.add("show"), 60 + i*45);
+  });
+  animarGauge(panel);
+}
+function resetAnimaciones(panel){
+  if(!panel) return;
+  panel.querySelectorAll(".cnt[data-count]").forEach(el=>{
+    const dec = parseInt(el.dataset.dec||"0",10);
+    const suffix = el.dataset.suffix||"";
+    const prefix = el.dataset.prefix||"";
+    el.textContent = prefix + (0).toLocaleString("es-CO",{minimumFractionDigits:dec,maximumFractionDigits:dec}) + suffix;
+  });
+  panel.querySelectorAll(".bf[data-w]").forEach(el=>{ el.style.width = "0%"; });
+  panel.querySelectorAll(".top-item").forEach(el=>el.classList.remove("show"));
+}
+function setupAnimObserver(){
+  if(state._animObserver) state._animObserver.disconnect();
+  state._animObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      const el = entry.target;
+      if(entry.isIntersecting){
+        if(el.classList.contains("cnt") && el.dataset.count) animarNumeroEl(el);
+        else if(el.classList.contains("bf")) el.style.width = el.dataset.w + "%";
+        else if(el.classList.contains("top-item")) el.classList.add("show");
+      } else {
+        if(el.classList.contains("cnt") && el.dataset.count){
+          const dec = parseInt(el.dataset.dec||"0",10);
+          el.textContent = (0).toLocaleString("es-CO",{minimumFractionDigits:dec,maximumFractionDigits:dec}) + (el.dataset.suffix||"");
+        }
+        else if(el.classList.contains("bf")) el.style.width = "0%";
+        else if(el.classList.contains("top-item")) el.classList.remove("show");
+      }
+    });
+  }, {threshold: 0.2});
+  document.querySelectorAll(".cnt[data-count], .bf[data-w], .top-item").forEach(el=>state._animObserver.observe(el));
+}
+
+function animarGauge(root){
+  const gauge = root ? root.querySelector(".gauge-wrap") : document.querySelector(".gauge-wrap");
+  if(!gauge) return;
+  const fg = gauge.querySelector(".gauge-fg-arc");
+  const numEl = gauge.querySelector(".gv.cnt");
+  if(!fg || !numEl) return;
+  const target = parseFloat(fg.dataset.pct || numEl.dataset.count || "0");
+  const arcLen = parseFloat(fg.dataset.arclen || "282.74");
+  const start = performance.now();
+  const dur = 1800;
+  function step(now){
+    const t = Math.min(1, (now-start)/dur);
+    const eased = easeOutCubic(t);
+    const cur = Math.min(100, target) * eased;
+    fg.style.strokeDashoffset = String(arcLen * (1 - cur/100));
+    numEl.textContent = (target * eased).toFixed(1) + "%";
+    if(t<1) requestAnimationFrame(step);
+    else {
+      fg.style.strokeDashoffset = String(arcLen * (1 - Math.min(100, target)/100));
+      numEl.textContent = target.toFixed(1) + "%";
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+/* ═══════════════ RENDER ═══════════════ */
+function render(){
+  if(!state.tasks.length){
+    const kpiSec = $("#kpiSection");
+    if(kpiSec) kpiSec.innerHTML = `<div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      <h3>Sin datos cargados</h3><p>Carga un archivo Excel para comenzar a analizar la alineación y ocupación.</p></div>`;
+    ["compSection","top3Section","weekSection","evolSection","chartSection","dataSection"].forEach(id=>{ const el = $("#"+id); if(el) el.innerHTML=""; });
+    return;
+  }
+  const ini = parseDate($("#fIni").value);
+  const fin = parseDate($("#fFin").value);
+  if(!ini || !fin){
+    $("#kpiSection").innerHTML='<div class="card"><h2>⚠ Selecciona un período</h2><p class="mini">Define la fecha inicial y la fecha final.</p></div>';
+    ["compSection","top3Section","weekSection","evolSection"].forEach(id=>{ const el = $("#"+id); if(el) el.innerHTML=""; });
+    return;
+  }
+  if(ini>fin){
+    $("#kpiSection").innerHTML='<div class="card"><h2>⚠ Período inválido</h2><p class="mini">La fecha inicial no puede ser posterior a la final.</p></div>';
+    ["compSection","top3Section","weekSection","evolSection"].forEach(id=>{ const el = $("#"+id); if(el) el.innerHTML=""; });
+    return;
+  }
+
+  const criterioEl = $("#criterio");
+  const criterio = criterioEl ? criterioEl.value : "todos";
+  const bh = getBaseHoras(ini, fin);
+  const tareasPeriodo = filtrar(state.tasks, ini, fin, criterio);
+  const tareas = filtrarResumen(tareasPeriodo);
+  const m = calcularMetricas(tareas, bh.base);
+
+  const allResp = [...new Set(tareasPeriodo.flatMap(t=>(t.asignado||"").split(";").map(s=>s.trim())).filter(Boolean))].sort();
+  const allProy = [...new Set(tareasPeriodo.map(t=>t.proyecto||"Sin proyecto"))].sort();
+
+  const tareasParaRanking = tareasPeriodo.filter(t=>{
+    const f = state._resumenFilter;
+    if(f.proyecto && (t.proyecto||"Sin proyecto") !== f.proyecto) return false;
+    if(f.estado){
+      const e = t.pct>=0.999?"completada":t.pct>0?"encurso":"pendiente";
+      if(e !== f.estado) return false;
+    }
+    return true;
+  });
+
+  const promedio4 = (m.alineacion + m.ocupTareas + m.ocupHoras + m.score) / 4;
+  const heroData = renderHeroMessage(promedio4, m);
+  const heroLvl = heroData.lvl;
+  const heroBorderStyle = `style="border-color:${heroLvl.border}"`;
+
+  $("#kpiSection").innerHTML = `
+  <section class="card">
+    <h2>📌 KPIs del período</h2>
+
+    <div class="kpi-hero" ${heroBorderStyle}>
+      <div class="gauge-wrap">
+        <svg class="gauge-svg" viewBox="0 0 240 145">
+          <defs>
+            <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#dc2626"/>
+              <stop offset="55%" stop-color="#f59e0b"/>
+              <stop offset="100%" stop-color="#16a34a"/>
+            </linearGradient>
+          </defs>
+          <path class="gauge-bg-arc" d="M 30 120 A 90 90 0 0 1 210 120"/>
+          <path class="gauge-fg-arc" data-pct="${promedio4.toFixed(1)}" data-arclen="282.74"
+                d="M 30 120 A 90 90 0 0 1 210 120"
+                stroke-dasharray="282.74" stroke-dashoffset="282.74"/>
+        </svg>
+        <div class="gauge-ticks">
+          <span class="gauge-tick" style="left:12.5%;top:84%">0</span>
+          <span class="gauge-tick" style="left:50%;top:12%">50</span>
+          <span class="gauge-tick" style="left:87.5%;top:84%">100</span>
+        </div>
+        <div class="gauge-center">
+          <div class="gv cnt" data-count="${promedio4.toFixed(1)}" data-dec="1" data-suffix="%">0.0%</div>
+          <div class="gl">Promedio general</div>
+        </div>
+      </div>
+      ${heroData.messageHTML}
+    </div>
+
+    <div class="meta-line" style="display:flex;flex-wrap:wrap;gap:6px 20px;font-size:.85rem;color:var(--muted);margin-bottom:14px;font-weight:600">
+      <span>📅 <b style="color:var(--ink)">${fmtDate(ini)} → ${fmtDate(fin)}</b></span>
+      <span>🗂 <b style="color:var(--ink)">${criterio==="todos"?"Todos (toquen período)":criterio==="inicio"?"Inician":criterio==="fin"?"Finalizan":"Se solapan"}</b></span>
+      <span>⏱ <b style="color:var(--ink)">${bh.etiqueta}</b></span>
+      <span>📄 <b style="color:var(--ink)">${state.origen}</b></span>
+      <span>📊 <b style="color:var(--ink)">${tareasPeriodo.length} tarea(s) en período</b></span>
+    </div>
+
+    <div class="resumen-filters">
+      <div>
+        <label>👤 Filtrar por responsable</label>
+        <select id="fltResumenResp">
+          <option value="">Todos los responsables</option>
+          ${allResp.map(r=>`<option value="${r.replace(/"/g,"&quot;")}" ${state._resumenFilter.resp===r?"selected":""}>${r}</option>`).join("")}
+        </select>
+      </div>
+      <div>
+        <label>📁 Filtrar por proyecto</label>
+        <select id="fltResumenProyecto">
+          <option value="">Todos los proyectos</option>
+          ${allProy.map(p=>`<option value="${p.replace(/"/g,"&quot;")}" ${state._resumenFilter.proyecto===p?"selected":""}>${p}</option>`).join("")}
+        </select>
+      </div>
+      <div>
+        <label>🔖 Filtrar por estado</label>
+        <select id="fltResumenEstado">
+          <option value="">Todos los estados</option>
+          <option value="completada" ${state._resumenFilter.estado==="completada"?"selected":""}>Completadas</option>
+          <option value="encurso" ${state._resumenFilter.estado==="encurso"?"selected":""}>En curso</option>
+          <option value="pendiente" ${state._resumenFilter.estado==="pendiente"?"selected":""}>Pendientes</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:flex-end">
+        <button class="btn btn-ghost" id="btnLimpiarFiltros" style="width:100%">🧹 Limpiar filtros</button>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi k-al" data-metrica="alineacion" data-valor="${m.alineacion.toFixed(1)}">
+        <div class="kpi-l">% Alineación</div>
+        <div class="kpi-v grad-al"><span class="cnt" data-count="${m.alineacion.toFixed(1)}" data-dec="1" data-suffix="%">0.0%</span></div>
+        <div class="kpi-s">${m.conGoal} de ${m.total} tareas con Goal</div>
+      </div>
+      <div class="kpi k-oc" data-metrica="ocupTareas" data-valor="${m.ocupTareas.toFixed(1)}">
+        <div class="kpi-l">% Ocupación (tareas)</div>
+        <div class="kpi-v grad-oc"><span class="cnt" data-count="${m.ocupTareas.toFixed(1)}" data-dec="1" data-suffix="%">0.0%</span></div>
+        <div class="kpi-s">${m.completadas} de ${m.total} completadas</div>
+      </div>
+      <div class="kpi k-oh" data-metrica="ocupHoras" data-valor="${m.ocupHoras.toFixed(1)}">
+        <div class="kpi-l">% Ocupación (horas)</div>
+        <div class="kpi-v grad-oh"><span class="cnt" data-count="${m.ocupHoras.toFixed(1)}" data-dec="1" data-suffix="%">0.0%</span></div>
+        <div class="kpi-s">${fmtH(m.horas)} de ${fmtH(bh.base)}</div>
+      </div>
+      <div class="kpi k-sc" data-metrica="score" data-valor="${m.score.toFixed(1)}">
+        <div class="kpi-l">Score</div>
+        <div class="kpi-v grad-sc"><span class="cnt" data-count="${m.score.toFixed(1)}" data-dec="1" data-suffix="%">0.0%</span></div>
+        <div class="kpi-s">25% Alin. + 25% Ocup.Tar. + 50% Ocup.Hor.</div>
+      </div>
+    </div>
+  </section>`;
+
+  $("#compSection").innerHTML = `
+  <section class="card">
+    <h2>🧩 Composición del Score</h2>
+    ${barra("Alineación (25%)", m.alineacion, "linear-gradient(90deg,#1b5e20,#43a047)")}
+    ${barra("Ocupación · tareas (25%)", m.ocupTareas, "linear-gradient(90deg,#2e7d32,#66bb6a)")}
+    ${barra("Ocupación · horas (50%)", m.ocupHoras, "linear-gradient(90deg,#43a047,#a5d6a7)")}
+    ${barra("SCORE FINAL", m.score, "linear-gradient(90deg,#0d3b0d,#2e7d32,#66bb6a)")}
+  </section>
+  ${renderRankingPersonas(tareasParaRanking, bh.base)}`;
+
+  $("#top3Section").innerHTML = renderTop3(tareas, bh.base) + renderTopsPorMetrica(tareas, bh.base);
+  $("#chartSection").innerHTML = renderGraficos(tareas, bh.base);
+  $("#weekSection").innerHTML = renderTareasSemana(tareas);
+  $("#evolSection").innerHTML = evolucionMensual(tareas, ini, fin, criterio, bh);
+  $("#dataSection").innerHTML = detalleTareas(tareas, bh);
+
+  setTimeout(()=>{
+    dispararAnimacionesPanel(document.getElementById("panel-resumen"));
+    setupAnimObserver();
+  }, 40);
+
+  bindInteracciones();
+  bindResumenFilters();
+  bindTableFilters();
+  bindSubtabs();
+  bindWeekTasks();
+  bindRanking();
+  bindMesClicks();
+
+  const gp = document.getElementById("panel-graficos");
+  if(gp && gp.classList.contains("active")){
+    setTimeout(()=>renderCharts(tareas, bh.base, true), 80);
+  }
+}
+
+function barra(label, valor, color){
+  const w = Math.max(0, Math.min(100, valor));
+  return `<div class="brow"><div class="bl">${label}</div>
+    <div class="bt"><div class="bf" style="width:0%;background:${color}" data-w="${w}"></div></div>
+    <div class="bv"><span class="cnt" data-count="${valor.toFixed(1)}" data-dec="1" data-suffix="%">0.0%</span></div></div>`;
+}
+
+/* RANKING */
+function renderRankingPersonas(tareas, base){
+  if(!tareas.length) return "";
+  const map = agrupar(tareas, t => (t.asignado||"").split(";"));
+  const personas = [];
+  map.forEach((arr, nombre)=>{
+    if(!nombre || nombre==="Sin asignar") return;
+    const m = calcularMetricas(arr, base);
+    const promedio = (m.score + m.alineacion + m.ocupTareas + m.ocupHoras)/4;
+    personas.push({nombre, total:m.total, score:m.score, alineacion:m.alineacion, ocupTareas:m.ocupTareas, ocupHoras:m.ocupHoras, promedio});
+  });
+  if(!personas.length) return "";
+  personas.sort((a,b)=> (b.score - a.score) || (b.promedio - a.promedio));
+  const active = state._resumenFilter.resp;
+  const cls = v => v>=80?"p-good":v>=60?"p-mid":"p-bad";
+  const rows = personas.map((p,i)=>{
+    const pos = i+1;
+    const posCls = pos===1?"p1":pos===2?"p2":pos===3?"p3":"";
+    const isActive = active === p.nombre;
+    const safeName = p.nombre.replace(/"/g,"&quot;");
+    return `<tr class="rank-row ${isActive?'active':''}" data-resp="${safeName}" title="Clic para filtrar/desfiltrar a ${p.nombre}">
+      <td class="num"><span class="rank-pos ${posCls}">${pos}</span></td>
+      <td class="rank-name-cell">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <div style="min-width:0;overflow:hidden;flex:1">
+            <b>${p.nombre}</b>
+            <small>${p.total} tarea${p.total!==1?'s':''}</small>
+          </div>
+          <button class="btn-ver-tareas" data-ver-resp="${safeName}" title="Ver las tareas de ${p.nombre} aplicando los filtros de ⚙️ Configuración">👁 Ver</button>
+        </div>
+      </td>
+      <td class="num"><span class="pill ${cls(p.score)}">${fmtP(p.score)}</span></td>
+      <td class="num"><span class="pill ${cls(p.alineacion)}">${fmtP(p.alineacion)}</span></td>
+      <td class="num"><span class="pill ${cls(p.ocupTareas)}">${fmtP(p.ocupTareas)}</span></td>
+      <td class="num"><span class="pill ${cls(p.ocupHoras)}">${fmtP(p.ocupHoras)}</span></td>
+      <td class="num"><b>${fmtP(p.promedio)}</b></td>
+    </tr>`;
+  }).join("");
+  const mGlobal = calcularMetricas(tareas, base);
+  const promGlobal = (mGlobal.score + mGlobal.alineacion + mGlobal.ocupTareas + mGlobal.ocupHoras)/4;
+  return `<section class="card">
+    <h2>🏅 Ranking de todas las personas (mejor → peor)</h2>
+    <p class="mini" style="margin-bottom:10px">
+      Ordenado por <b>Score</b> descendente. Cada fila muestra las <b>4 métricas</b> y su promedio.
+      Clic sobre una fila para aplicar/quitar el filtro, o usa <b>👁 Ver</b> para ver el detalle de tareas de esa persona aplicando los filtros de <b>⚙️ Configuración</b>.
+    </p>
+    <div class="rank-table-wrap">
+      <table class="t rank-table">
+        <thead>
+          <tr>
+            <th style="width:52px;text-align:right">#</th>
+            <th>Persona</th>
+            <th class="num">Score</th>
+            <th class="num">% Alineación</th>
+            <th class="num">% Ocup. Tareas</th>
+            <th class="num">% Ocup. Horas</th>
+            <th class="num">Promedio</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+        <tfoot>
+          <tr>
+            <td class="num">Σ</td>
+            <td class="rank-name-cell">
+              <b>TOTAL / PROMEDIO GLOBAL</b>
+              <small>${personas.length} persona(s) · ${mGlobal.total} tarea(s) · ${mGlobal.completadas} completada(s) · ${mGlobal.conGoal} con Goal</small>
+            </td>
+            <td class="num">${fmtP(mGlobal.score)}</td>
+            <td class="num">${fmtP(mGlobal.alineacion)}</td>
+            <td class="num">${fmtP(mGlobal.ocupTareas)}</td>
+            <td class="num">${fmtP(mGlobal.ocupHoras)}</td>
+            <td class="num"><b>${fmtP(promGlobal)}</b></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </section>`;
+}
+
+/* ✅ Modal "Ver tareas de una persona" respetando ⚙️ Configuración global */
+function verTareasPersona(nombre){
+  const modal = $("#modalBg"), title = $("#modalTitle"), body = $("#modalBody");
+  if(!modal || !title || !body) return;
+
+  const ini = parseDate($("#fIni").value);
+  const fin = parseDate($("#fFin").value);
+  if(!ini || !fin){
+    alert("⚠ Define primero un período válido en ⚙️ Configuración.");
+    return;
+  }
+  const criterio = $("#criterio")?.value || "todos";
+  const bh = getBaseHoras(ini, fin);
+
+  const periodo = filtrar(state.tasks, ini, fin, criterio);
+  const personTasks = periodo.filter(t => {
+    const asignados = (t.asignado||"").split(";").map(s=>s.trim());
+    return asignados.includes(nombre);
+  });
+
+  const m = calcularMetricas(personTasks, bh.base);
+  const promedio = (m.alineacion + m.ocupTareas + m.ocupHoras + m.score) / 4;
+  const criterioLabel = criterio==="todos"?"Todos (toquen período)":criterio==="inicio"?"Inician":criterio==="fin"?"Finalizan":"Se solapan";
+
+  title.textContent = `👤 Tareas de ${nombre}`;
+
+  const filas = personTasks.slice().sort((a,b)=>{
+    const na = parseFloat(a.num) || 0;
+    const nb = parseFloat(b.num) || 0;
+    return na - nb;
+  }).map(t=>{
+    const done = t.pct>=0.999;
+    const badge = done ? '<span class="badge b-ok">Completada</span>' : (t.pct>0 ? '<span class="badge b-mid">En curso</span>' : '<span class="badge b-no">Pendiente</span>');
+    const g = t.goal ? `<span class="badge b-goal" title="${(t.goalFull||"").replace(/"/g,"&quot;")}">${shortGoal(t.goalFull)}</span>` : '<span class="badge b-none">Sin Goal</span>';
+    return `<tr>
+      <td class="num">${t.num}</td>
+      <td><b>${t.nombre}</b><br><span class="mini">${t.proyecto||"Sin proyecto"}</span></td>
+      <td>${fmtDate(t.inicio)}</td>
+      <td>${fmtDate(t.fin)}</td>
+      <td class="num">${fmtP(t.pct*100)}</td>
+      <td class="num">${t.esfuerzo!==null?fmtH(t.esfuerzo):"—"}</td>
+      <td class="num">${fmtH(t.completado||0)}</td>
+      <td>${badge}</td>
+      <td>${g}</td>
+    </tr>`;
+  }).join("");
+
+  const totEsf = personTasks.reduce((a,t)=>a+(t.esfuerzo||0),0);
+  const totComp = personTasks.reduce((a,t)=>a+(t.completado||0),0);
+
+  body.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:12px;padding:10px 12px;background:var(--bg);border-radius:8px;font-size:.8rem">
+      <div><b>📅 Período:</b><br>${fmtDate(ini)} → ${fmtDate(fin)}</div>
+      <div><b>🗂 Criterio:</b><br>${criterioLabel}</div>
+      <div><b>⏱ Base:</b><br>${bh.etiqueta}</div>
+      <div><b>📊 Tareas:</b><br>${personTasks.length} en período</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:10px 0;padding:10px 12px;background:var(--brand-soft);border-left:4px solid var(--brand);border-radius:8px;font-size:.8rem">
+      <div><b>Score</b><br><b style="color:var(--brand-dark);font-size:1.05rem">${fmtP(m.score)}</b></div>
+      <div><b>% Alineación</b><br><b>${fmtP(m.alineacion)}</b><br><span class="mini">${m.conGoal} de ${m.total} con Goal</span></div>
+      <div><b>% Ocup. Tareas</b><br><b>${fmtP(m.ocupTareas)}</b><br><span class="mini">${m.completadas} de ${m.total} compl.</span></div>
+      <div><b>% Ocup. Horas</b><br><b>${fmtP(m.ocupHoras)}</b><br><span class="mini">${fmtH(m.horas)} de ${fmtH(bh.base)}</span></div>
+      <div><b>Promedio</b><br><b style="color:var(--brand-dark);font-size:1.05rem">${fmtP(promedio)}</b></div>
+    </div>
+    ${personTasks.length === 0
+      ? '<p class="mini" style="padding:24px;text-align:center;background:var(--bg);border-radius:8px">No hay tareas para esta persona con los filtros de <b>⚙️ Configuración</b> aplicados.</p>'
+      : `<p class="mini" style="margin:10px 0 6px"><b>Detalle de las ${personTasks.length} tarea(s)</b> según ⚙️ Configuración + persona:</p>
+        <div style="max-height:400px;overflow:auto;border:1px solid var(--tbl-border);border-radius:8px">
+          <table class="t" style="font-size:.76rem">
+            <thead><tr>
+              <th>#</th><th>Tarea</th><th>Inicio</th><th>Fin</th>
+              <th class="num">% Compl.</th><th class="num">Esfuerzo</th><th class="num">Horas</th>
+              <th>Estado</th><th>Goal</th>
+            </tr></thead>
+            <tbody>${filas}</tbody>
+            <tfoot><tr>
+              <td colspan="5" style="text-align:right">TOTALES</td>
+              <td class="num">${fmtH(totEsf)}</td>
+              <td class="num">${fmtH(totComp)}</td>
+              <td colspan="2">${m.completadas} compl. · ${m.conGoal} con Goal</td>
+            </tr></tfoot>
+          </table>
+        </div>`
+    }
+  `;
+
+  modal.classList.add("show");
+}
+
+function renderTop3(tareas, base){
+  if(!tareas.length) return "";
+  const map = agrupar(tareas, t => (t.asignado||"").split(";"));
+  const personas = [];
+  map.forEach((arr, nombre)=>{
+    if(!nombre || nombre==="Sin asignar") return;
+    const m = calcularMetricas(arr, base);
+    const promedio = (m.score + m.alineacion + m.ocupTareas + m.ocupHoras)/4;
+    personas.push({nombre, total:m.total, score:m.score, alineacion:m.alineacion, ocupTareas:m.ocupTareas, ocupHoras:m.ocupHoras, promedio});
+  });
+  if(!personas.length) return "";
+  const top = (asc, n=3) => [...personas].sort((a,b)=> asc ? a.promedio-b.promedio : b.promedio-a.promedio).slice(0,n);
+  const itemHTML = (arr) => {
+    if(!arr.length) return '<p class="mini" style="padding:6px 8px">Sin datos</p>';
+    return arr.map((p,i)=>`
+      <div class="top-item" title="${p.nombre} — ${p.total} tarea(s)">
+        <span class="top-rank">${i+1}</span>
+        <span class="top-name">${p.nombre}<small>Score ${fmtP(p.score)} · Alin ${fmtP(p.alineacion)} · Tar ${fmtP(p.ocupTareas)} · Hor ${fmtP(p.ocupHoras)}</small></span>
+        <span class="top-val">${fmtP(p.promedio)}</span>
+      </div>`).join("");
+  };
+  return `
+  <section class="card">
+    <h2>🏆 Top 3 del período — Mejores y peores puntajes</h2>
+    <div class="top3-note">Ranking combinado: promedio de las 4 métricas</div>
+    <div class="top3-grid">
+      <div class="top3-card mejores">
+        <div class="top3-title">🥇 Mejores puntajes</div>
+        ${itemHTML(top(false))}
+      </div>
+      <div class="top3-card peores">
+        <div class="top3-title">🔻 Peores puntajes</div>
+        ${itemHTML(top(true))}
+      </div>
+    </div>
+  </section>`;
+}
+
+function renderTopsPorMetrica(tareas, base){
+  if(!tareas.length) return "";
+  const map = agrupar(tareas, t => (t.asignado||"").split(";"));
+  const personas = [];
+  map.forEach((arr, nombre)=>{
+    if(!nombre || nombre==="Sin asignar") return;
+    const m = calcularMetricas(arr, base);
+    personas.push({nombre, total:m.total, score:m.score, alineacion:m.alineacion, ocupTareas:m.ocupTareas, ocupHoras:m.ocupHoras});
+  });
+  if(!personas.length) return "";
+  const buildCard = (titulo, icono, key, color, asc) => {
+    const sorted = [...personas].sort((a,b)=> asc ? a[key]-b[key] : b[key]-a[key]).slice(0,3);
+    const items = sorted.map((p,i)=>{
+      return `<div class="mini-top-item">
+        <span class="mt-n"><b>${i+1}.</b> ${p.nombre}</span>
+        <span class="mt-v" style="color:${color}">${fmtP(p[key])}</span>
+      </div>`;
+    }).join("") || '<p class="mini">Sin datos</p>';
+    return `<div class="mini-top-card">
+      <div class="mini-top-title" style="color:${color}">${icono} Top 3 · ${titulo}</div>
+      ${items}
+    </div>`;
+  };
+  return `<section class="card">
+    <h2>🎖 Top 3 por cada métrica</h2>
+    <div class="tops-row-title" style="color:#1b5e20">🥇 Mejores por métrica</div>
+    <div class="mini-top-grid">
+      ${buildCard("Score", "⭐", "score", "#1b5e20", false)}
+      ${buildCard("Alineación", "🎯", "alineacion", "#2563eb", false)}
+      ${buildCard("Ocupación Tareas", "✅", "ocupTareas", "#2e7d32", false)}
+      ${buildCard("Ocupación Horas", "⏱", "ocupHoras", "#f9a825", false)}
+    </div>
+    <div class="tops-row-title" style="color:#dc2626;margin-top:16px">🔻 Peores por métrica</div>
+    <div class="mini-top-grid">
+      ${buildCard("Score", "⭐", "score", "#991b1b", true)}
+      ${buildCard("Alineación", "🎯", "alineacion", "#991b1b", true)}
+      ${buildCard("Ocupación Tareas", "✅", "ocupTareas", "#991b1b", true)}
+      ${buildCard("Ocupación Horas", "⏱", "ocupHoras", "#991b1b", true)}
+    </div>
+  </section>`;
+}
+
+function renderTareasSemana(tareas){
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const l = startOfWeek(hoy);
+  const h = addDays(l, 6);
+  const semana = tareas.filter(t => {
+    const s=t.inicio, f=t.fin||t.inicio;
+    if(!s) return false;
+    return s<=h && f>=l;
+  }).sort((a,b)=>(a.inicio||0)-(b.inicio||0));
+  state._weekTasks = semana;
+  if(!semana.length){
+    return `<section class="card"><h2>📅 Tareas de esta semana (${fmtDate(l)} → ${fmtDate(h)})</h2>
+      <p class="mini">No hay tareas registradas para esta semana en el período seleccionado.</p></section>`;
+  }
+  const items = semana.slice(0, 24).map((t, idx)=>{
+    const done = t.pct>=0.999;
+    const cls = done ? "done" : (t.pct>0 ? "mid" : "todo");
+    const etiqueta = done ? "Completada" : (t.pct>0 ? "En curso" : "Pendiente");
+    return `<div class="week-task ${cls}" data-week-idx="${idx}" title="Clic para ver detalle">
+      <div class="wt-name">${t.nombre}</div>
+      <div class="wt-meta">
+        <span>👤 <b>${t.asignado||"—"}</b></span>
+        <span>📅 ${fmtDate(t.inicio)} → ${fmtDate(t.fin)}</span>
+        <span>🏷 <b>${etiqueta}</b> · ${fmtP(t.pct*100)}</span>
+      </div>
+    </div>`;
+  }).join("");
+  const extra = semana.length > 24 ? `<p class="mini" style="margin-top:10px">… y ${semana.length-24} tarea(s) más.</p>` : "";
+  return `<section class="card">
+    <h2>📅 Tareas de esta semana (${fmtDate(l)} → ${fmtDate(h)}) · ${semana.length} en total</h2>
+    <p class="mini" style="margin-bottom:10px">💡 Haz clic sobre cualquier tarea para ver el detalle completo.</p>
+    <div class="week-tasks">${items}</div>
+    ${extra}
+  </section>`;
+}
+function bindWeekTasks(){
+  $$(".week-task").forEach(el => {
+    el.onclick = () => {
+      const idx = parseInt(el.dataset.weekIdx, 10);
+      const t = (state._weekTasks || [])[idx];
+      if(t) showTaskDetail(t);
+    };
+  });
+}
+function bindRanking(){
+  $$(".rank-row").forEach(el => {
+    if(!el.dataset.resp) return;
+    el.onclick = () => {
+      const resp = el.dataset.resp;
+      state._resumenFilter.resp = (state._resumenFilter.resp === resp) ? "" : resp;
+      render();
+    };
+  });
+  $$(".btn-ver-tareas").forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const nombre = btn.dataset.verResp;
+      if(nombre) verTareasPersona(nombre);
+    };
+  });
+}
+function showTaskDetail(t){
+  const modal = $("#modalBg"), title = $("#modalTitle"), body = $("#modalBody");
+  if(!modal) return;
+  title.textContent = "📋 " + (t.nombre || "Tarea");
+  const done = t.pct>=0.999;
+  const badge = done ? '<span class="badge b-ok">Completada</span>' : (t.pct>0 ? '<span class="badge b-mid">En curso</span>' : '<span class="badge b-no">Pendiente</span>');
+  body.innerHTML = `
+    <p><b>#</b> ${t.num||"—"}</p>
+    <p><b>Responsable:</b> ${t.asignado || "—"}</p>
+    <p><b>Proyecto:</b> ${t.proyecto || "Sin proyecto"}</p>
+    <p><b>Inicio:</b> ${fmtDate(t.inicio)} · <b>Fin:</b> ${fmtDate(t.fin)}</p>
+    <p><b>% Completado:</b> ${fmtP(t.pct*100)} ${badge}</p>
+    <p><b>Esfuerzo:</b> ${t.esfuerzo!==null?fmtH(t.esfuerzo):"—"} · <b>Horas completadas:</b> ${fmtH(t.completado||0)}</p>
+    <p><b>Goal:</b> ${t.goalFull ? shortGoal(t.goalFull) : "Sin Goal"}</p>
+    ${t.goalFull ? `<p class="mini" style="margin-top:8px;padding:8px 10px;background:var(--bg);border-radius:8px">${t.goalFull}</p>` : ""}
+  `;
+  modal.classList.add("show");
+}
+function mostrarModalMes(mesData){
+  const modal = $("#modalBg"), title = $("#modalTitle"), body = $("#modalBody");
+  if(!modal) return;
+  const label = `${MESES_LARGOS[mesData.ms.getMonth()]} ${mesData.ms.getFullYear()}`;
+  title.textContent = "📅 Tareas del mes · " + label;
+  const m = calcularMetricas(mesData.arr, 42 * SEMANAS_MES);
+  const baseMensual = 42 * SEMANAS_MES;
+  const filas = mesData.arr.slice().sort((a,b)=>{
+    const na = parseFloat(a.num) || 0;
+    const nb = parseFloat(b.num) || 0;
+    return na - nb;
+  }).map(t => {
+    const done = t.pct>=0.999;
+    const badge = done ? '<span class="badge b-ok">Completada</span>' : (t.pct>0 ? '<span class="badge b-mid">En curso</span>' : '<span class="badge b-no">Pendiente</span>');
+    return `<tr>
+      <td class="num">${t.num}</td>
+      <td>${t.nombre}</td>
+      <td>${t.asignado||"—"}</td>
+      <td class="num">${fmtP(t.pct*100)}</td>
+      <td class="num">${fmtH(t.completado||0)}</td>
+      <td>${badge}</td>
+    </tr>`;
+  }).join("");
+  const totComp = mesData.arr.reduce((a,t)=>a+(t.completado||0),0);
+  body.innerHTML = `
+    <p style="margin-bottom:8px"><b>Período:</b> ${fmtDate(mesData.ms)} → ${fmtDate(mesData.me)}</p>
+    <p style="margin-bottom:8px"><b>Base mensual:</b> 42 h/sem × ${SEMANAS_MES} sem/mes ≈ <b>${Math.round(baseMensual)} h/mes</b></p>
+    <p style="margin-bottom:8px"><b>Resumen del mes:</b> ${m.total} tareas · ${m.completadas} completadas · ${m.conGoal} con Goal · ${fmtH(m.horas)} completadas</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:10px 0;padding:10px;background:var(--bg);border-radius:8px;font-size:.8rem">
+      <div><b>% Alineación</b><br>${m.conGoal} ÷ ${m.total} × 100 = <b>${fmtP(m.alineacion)}</b></div>
+      <div><b>% Ocup.Tareas</b><br>${m.completadas} ÷ ${m.total} × 100 = <b>${fmtP(m.ocupTareas)}</b></div>
+      <div><b>% Ocup.Horas</b><br>${fmtH(m.horas)} ÷ ${Math.round(baseMensual)} h × 100 = <b>${fmtP(m.ocupHoras)}</b></div>
+      <div><b>Score</b><br>25%·${fmtP(m.alineacion)} + 25%·${fmtP(m.ocupTareas)} + 50%·${fmtP(m.ocupHoras)} = <b>${fmtP(m.score)}</b></div>
+    </div>
+    <p class="mini" style="margin:8px 0"><b>Detalle de las ${m.total} tareas que se solapan con este mes:</b></p>
+    <div style="max-height:360px;overflow:auto;border:1px solid var(--tbl-border);border-radius:8px">
+      <table class="t" style="font-size:.78rem">
+        <thead><tr><th>#</th><th>Tarea</th><th>Resp.</th><th class="num">% Compl.</th><th class="num">Horas</th><th>Estado</th></tr></thead>
+        <tbody>${filas}</tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4" style="text-align:right">TOTALES</td>
+            <td class="num">${fmtH(totComp)}</td>
+            <td>${m.completadas}/${m.total} compl.</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  `;
+  modal.classList.add("show");
+}
+function bindMesClicks(){
+  $$("tr.mes-row").forEach(tr => {
+    tr.onclick = () => {
+      const idx = parseInt(tr.dataset.mesIdx, 10);
+      const mesData = (state._mesesData || [])[idx];
+      if(mesData) mostrarModalMes(mesData);
+    };
+  });
+}
+function evolucionMensual(tareas, ini, fin, criterio, bh){
+  const meses = [];
+  let cur = new Date(ini.getFullYear(), ini.getMonth(), 1);
+  const limite = new Date(fin.getFullYear(), fin.getMonth(), 1);
+  let guard = 0;
+  while(cur <= limite && guard++ < 60){
+    const ms = new Date(cur.getFullYear(), cur.getMonth(), 1);
+    const me = new Date(cur.getFullYear(), cur.getMonth()+1, 0, 23, 59, 59);
+    const arr = tareas.filter(t => {
+      const s = t.inicio, f = t.fin || t.inicio;
+      if(!s) return false;
+      return s <= me && f >= ms;
+    });
+    meses.push({ms, me, arr});
+    cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1);
+  }
+  state._mesesData = meses;
+  if(meses.length < 2) return "";
+  let rows="";
+  meses.forEach((mObj, idx)=>{
+    const {ms,me,arr} = mObj;
+    const m = calcularMetricas(arr, 42 * SEMANAS_MES);
+    const cls = v => v>=80?"p-good":v>=60?"p-mid":"p-bad";
+    const label = `${MESES_CORTOS[ms.getMonth()]} ${ms.getFullYear()}`;
+    rows += `<tr class="mes-row" data-mes-idx="${idx}" title="Clic para ver el detalle del mes">
+      <td>${label}</td>
+      <td class="num">${m.total}</td>
+      <td class="num">${m.completadas}</td>
+      <td class="num"><span class="pill ${cls(m.alineacion)}">${fmtP(m.alineacion)}</span></td>
+      <td class="num"><span class="pill ${cls(m.ocupTareas)}">${fmtP(m.ocupTareas)}</span></td>
+      <td class="num">${fmtH(m.horas)}</td>
+      <td class="num"><span class="pill ${cls(m.ocupHoras)}">${fmtP(m.ocupHoras)}</span></td>
+      <td class="num"><b>${fmtP(m.score)}</b></td>
+    </tr>`;
+  });
+  const mTot = calcularMetricas(tareas, bh.base);
+  const cls2 = v => v>=80?"p-good":v>=60?"p-mid":"p-bad";
+  return `<section class="card"><h2>📈 Evolución mensual (base 42 h/semana × ${SEMANAS_MES} sem/mes ≈ ${Math.round(42*SEMANAS_MES)} h/mes)</h2>
+    <p class="mini" style="margin-bottom:8px">Cada mes incluye las tareas que se solapan con él. <b>Clic sobre una fila</b> para ver el detalle.</p>
+    <div class="scroll"><table class="t"><thead><tr>
+      <th>Mes</th><th class="num">Tareas</th><th class="num">Compl.</th>
+      <th class="num">% Alineac.</th><th class="num">% Ocup.Tar.</th><th class="num">Horas</th><th class="num">% Ocup.Hor.</th><th class="num">Score</th>
+    </tr></thead><tbody>${rows}</tbody>
+    <tfoot><tr>
+      <td>Σ TOTALES (período)</td>
+      <td class="num">${mTot.total}</td>
+      <td class="num">${mTot.completadas}</td>
+      <td class="num"><span class="pill ${cls2(mTot.alineacion)}">${fmtP(mTot.alineacion)}</span></td>
+      <td class="num"><span class="pill ${cls2(mTot.ocupTareas)}">${fmtP(mTot.ocupTareas)}</span></td>
+      <td class="num">${fmtH(mTot.horas)}</td>
+      <td class="num"><span class="pill ${cls2(mTot.ocupHoras)}">${fmtP(mTot.ocupHoras)}</span></td>
+      <td class="num">${fmtP(mTot.score)}</td>
+    </tr></tfoot>
+    </table></div></section>`;
+}
+function detalleTareas(tareas, bh){
+  if(!tareas.length) return '<section class="card"><h2>📋 Detalle de tareas</h2><p class="mini">No hay tareas en el período seleccionado.</p></section>';
+  const responsables = [...new Set(tareas.flatMap(t=>(t.asignado||"").split(";").map(s=>s.trim())).filter(Boolean))].sort();
+  const filas = tareas.slice().sort((a,b)=>{
+    const na = parseFloat(a.num) || 0;
+    const nb = parseFloat(b.num) || 0;
+    return na - nb;
+  }).map(t=>{
+    const done = t.pct>=0.999;
+    const estado = done ? "completada" : (t.pct>0 ? "encurso" : "pendiente");
+    const badge = done ? '<span class="badge b-ok">Completada</span>' : (t.pct>0 ? '<span class="badge b-mid">En curso</span>' : '<span class="badge b-no">Pendiente</span>');
+    const g = t.goal ? `<span class="badge b-goal" title="${(t.goalFull||"").replace(/"/g,"&quot;")}">${shortGoal(t.goalFull)}</span>` : '<span class="badge b-none">Sin Goal</span>';
+    return `<tr data-estado="${estado}" data-goal="${t.goal?1:0}" data-resp="${(t.asignado||"").replace(/"/g,"&quot;")}" data-buscar="${(t.nombre+" "+(t.proyecto||"")).toLowerCase().replace(/"/g,"&quot;")}">
+      <td class="num">${t.num}</td>
+      <td><b>${t.nombre}</b><br><span class="mini">${t.proyecto||"Sin proyecto"}</span></td>
+      <td>${t.asignado||"—"}</td>
+      <td>${fmtDate(t.inicio)}</td>
+      <td>${fmtDate(t.fin)}</td>
+      <td class="num">${fmtP(t.pct*100)}</td>
+      <td class="num">${t.esfuerzo!==null?fmtH(t.esfuerzo):"—"}</td>
+      <td class="num">${fmtH(t.completado||0)}</td>
+      <td>${badge}</td>
+      <td>${g}</td>
+    </tr>`;
+  }).join("");
+  const totEsf = tareas.reduce((a,t)=>a+(t.esfuerzo||0),0);
+  const totComp = tareas.reduce((a,t)=>a+(t.completado||0),0);
+  const nComp = tareas.filter(t=>t.pct>=0.999).length;
+  const nGoal = tareas.filter(t=>t.goal).length;
+  const optsResp = responsables.map(r=>`<option value="${r.replace(/"/g,"&quot;")}">${r}</option>`).join("");
+  return `<section class="card">
+    <h2>📋 Detalle de tareas del período (<span id="numTareasVisibles">${tareas.length}</span> de ${tareas.length})</h2>
+    <div class="table-filters">
+      <input type="text" id="fltBuscar" placeholder="🔍 Buscar tarea / proyecto…">
+      <select id="fltEstado"><option value="">Todos los estados</option><option value="completada">Completadas</option><option value="encurso">En curso</option><option value="pendiente">Pendientes</option></select>
+      <select id="fltGoal"><option value="">Todos (con/sin Goal)</option><option value="1">Con Goal</option><option value="0">Sin Goal</option></select>
+      <select id="fltResp"><option value="">Todos los responsables</option>${optsResp}</select>
+    </div>
+    <div class="scroll"><table class="t" id="tablaTareas"><thead><tr>
+      <th>#</th><th>Tarea</th><th>Responsable</th><th>Inicio</th><th>Fin</th>
+      <th class="num">% Compl.</th><th class="num">Esfuerzo</th><th class="num">Horas compl.</th><th>Estado</th><th>Goal</th>
+    </tr></thead><tbody>${filas}</tbody>
+    <tfoot><tr>
+      <td colspan="6" style="text-align:right">TOTALES (<span id="numTareasFooter">${tareas.length}</span> tareas)</td>
+      <td class="num">${fmtH(totEsf)}</td>
+      <td class="num">${fmtH(totComp)}</td>
+      <td colspan="2">${nComp} compl. · ${nGoal} con Goal</td>
+    </tr></tfoot>
+    </table></div>
+  </section>`;
+}
+
+/* GRÁFICOS */
+function renderGraficos(tareas, base){
+  const porPersona = agrupar(tareas, t => (t.asignado||"").split(";"));
+  const porProyecto = agrupar(tareas, t => t.proyecto || "Sin proyecto");
+  const conGoalT = tareas.filter(t=>t.goal);
+  state._chartData = {porPersona, porProyecto, conGoalT, tareas, base};
+
+  const cardsP = [...porPersona.entries()].filter(([k])=>k&&k!=="Sin asignar").map(([k,arr],i)=>{
+    const m = calcularMetricas(arr, base);
+    return `<div class="mini-card">
+      <h4><span>${k}</span><small>${m.total} tareas</small></h4>
+      <div class="mini-chart-wrap"><canvas id="mini-p-${i}"></canvas></div>
+    </div>`;
+  }).join("");
+
+  const cardsPr = [...porProyecto.entries()].map(([k,arr],i)=>{
+    const m = calcularMetricas(arr, base);
+    return `<div class="mini-card">
+      <h4><span>${k}</span><small>${m.total} tareas</small></h4>
+      <div class="mini-chart-wrap"><canvas id="mini-pr-${i}"></canvas></div>
+    </div>`;
+  }).join("");
+
+  state._mini = {personas:[...porPersona.entries()], proyectos:[...porProyecto.entries()], base};
+
+  return `<section class="card">
+    <h2>📈 Gráficos interactivos</h2>
+    <div class="chart-row">
+      <div><p class="mini" style="margin-bottom:6px;font-weight:700">Score por persona (global)</p><div class="chart-wrap"><canvas id="chartPersona"></canvas></div></div>
+      <div><p class="mini" style="margin-bottom:6px;font-weight:700">Score por proyecto (global)</p><div class="chart-wrap"><canvas id="chartProyecto"></canvas></div></div>
+    </div>
+    <div class="chart-row" style="margin-top:18px">
+      <div><p class="mini" style="margin-bottom:6px;font-weight:700">Distribución por Goal</p><div class="chart-wrap"><canvas id="chartGoal"></canvas></div></div>
+      <div><p class="mini" style="margin-bottom:6px;font-weight:700">Estado de tareas</p><div class="chart-wrap"><canvas id="chartEstado"></canvas></div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🔍 Gráficos individuales por persona y proyecto</h2>
+    <div class="subtabs">
+      <button class="subtab-btn active" data-sub="personas">👤 Por Persona</button>
+      <button class="subtab-btn" data-sub="proyectos">📁 Por Proyecto</button>
+    </div>
+    <div class="sub-panel active" id="sub-panel-personas">
+      <div class="mini-grid">${cardsP || '<p class="mini">Sin personas en el período.</p>'}</div>
+    </div>
+    <div class="sub-panel" id="sub-panel-proyectos">
+      <div class="mini-grid">${cardsPr || '<p class="mini">Sin proyectos en el período.</p>'}</div>
+    </div>
+  </section>`;
+}
+
+function crearMiniChart(canvasId, m, animate){
+  if(typeof Chart === "undefined") return;
+  const cv = document.getElementById(canvasId);
+  if(!cv) return;
+  if(state.miniCharts[canvasId]){ try{ state.miniCharts[canvasId].destroy(); }catch(e){} delete state.miniCharts[canvasId]; }
+  const dark = document.body.dataset.theme === "dark";
+  const tickColor = dark ? "#9ab89a" : "#4a5a5a";
+  const gridColor = dark ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.06)";
+  state.miniCharts[canvasId] = new Chart(cv, {
+    type:"bar",
+    data:{
+      labels:["Score","Alineac.","Ocup.Tar.","Ocup.Hor."],
+      datasets:[{
+        label:"%",
+        data:[m.score, m.alineacion, m.ocupTareas, m.ocupHoras],
+        backgroundColor:["#1b5e20","#2e7d32","#43a047","#66bb6a"],
+        borderRadius:5
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      animation: animate === false ? false : {duration: 900, easing: 'easeOutQuart'},
+      layout:{ padding: { top: 22, right: 8, left: 4, bottom: 0 } },
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed.y.toFixed(1)}%`}},
+        valueLabels:{enabled: true}
+      },
+      scales:{
+        y:{beginAtZero:true, max:115, ticks:{callback:v=>v+"%",color:tickColor,font:{size:10},stepSize:25}, grid:{color:gridColor}},
+        x:{ticks:{color:tickColor,font:{size:10}}, grid:{display:false}}
+      }
+    }
+  });
+}
+function renderMiniChartsAll(tareas, base, which, animate){
+  if(typeof Chart === "undefined") return;
+  const {personas, proyectos} = state._mini || {personas:[],proyectos:[]};
+  const doP = !which || which === "personas";
+  const doPr = !which || which === "proyectos";
+  const soloCanvas = document.getElementById("mini-pers-solo");
+  if(soloCanvas){
+    const resp = state._resumenFilter.resp;
+    const pmap = agrupar(tareas, t => (t.asignado||"").split(";"));
+    const arr = pmap.get(resp) || [];
+    if(arr.length) crearMiniChart("mini-pers-solo", calcularMetricas(arr, base), animate);
+  }
+  if(doP){
+    personas.forEach(([k,arr],i)=>{
+      if(!k||k==="Sin asignar") return;
+      crearMiniChart("mini-p-"+i, calcularMetricas(arr, base), animate);
+    });
+  }
+  if(doPr){
+    proyectos.forEach(([k,arr],i)=>{
+      crearMiniChart("mini-pr-"+i, calcularMetricas(arr, base), animate);
+    });
+  }
+}
+function renderCharts(tareas, base, animate){
+  if(typeof Chart === "undefined") return;
+  const {porPersona, porProyecto, conGoalT} = state._chartData || {};
+  Object.values(state.charts).forEach(c=>{ try{c.destroy()}catch(e){} });
+  state.charts = {};
+  const animOpt = animate === false ? false : {duration: 1000, easing: 'easeOutQuart'};
+  const dark = document.body.dataset.theme === "dark";
+  const tickColor = dark ? "#9ab89a" : "#4a5a5a";
+  const gridColor = dark ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.06)";
+  const borderCol = dark ? "#1e2229" : "#fff";
+  const colores = ["#1b5e20","#2e7d32","#43a047","#66bb6a","#a5d6a7","#2563eb","#f9a825","#dc2626"];
+
+  const cp = $("#chartPersona");
+  if(cp && porPersona){
+    const labels = [...porPersona.keys()].slice(0,8);
+    const data = labels.map(k=>calcularMetricas(porPersona.get(k), base).score);
+    state.charts.persona = new Chart(cp, {
+      type:"bar",
+      data:{labels, datasets:[{label:"Score %", data, backgroundColor:labels.map((_,i)=>colores[i%colores.length]), borderRadius:6}]},
+      options:{responsive:true, maintainAspectRatio:false, animation: animOpt, indexAxis:"y",
+        layout:{ padding: { right: 30, left: 4 } },
+        plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>`Score: ${ctx.parsed.x.toFixed(1)}%`}}, valueLabels:{enabled: true}},
+        scales:{x:{beginAtZero:true, max:115, ticks:{callback:v=>v+"%",color:tickColor}, grid:{color:gridColor}}, y:{grid:{display:false}, ticks:{color:tickColor}}}}
+    });
+  }
+  const cpro = $("#chartProyecto");
+  if(cpro && porProyecto){
+    const labels = [...porProyecto.keys()].slice(0,8);
+    const data = labels.map(k=>calcularMetricas(porProyecto.get(k), base).score);
+    state.charts.proyecto = new Chart(cpro, {
+      type:"bar",
+      data:{labels, datasets:[{label:"Score %", data, backgroundColor:labels.map((_,i)=>colores[(i+2)%colores.length]), borderRadius:6}]},
+      options:{responsive:true, maintainAspectRatio:false, animation: animOpt, indexAxis:"y",
+        layout:{ padding: { right: 30, left: 4 } },
+        plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>`Score: ${ctx.parsed.x.toFixed(1)}%`}}, valueLabels:{enabled: true}},
+        scales:{x:{beginAtZero:true, max:115, ticks:{callback:v=>v+"%",color:tickColor}, grid:{color:gridColor}}, y:{grid:{display:false}, ticks:{color:tickColor}}}}
+    });
+  }
+  const cg = $("#chartGoal");
+  if(cg && conGoalT && conGoalT.length){
+    const porGoal = agrupar(conGoalT, t => shortGoal(t.goalFull));
+    const labels = [...porGoal.keys()];
+    const data = labels.map(k=>porGoal.get(k).length);
+    state.charts.goal = new Chart(cg, {
+      type:"doughnut",
+      data:{labels, datasets:[{data, backgroundColor:colores.slice(0,labels.length), borderWidth:2, borderColor:borderCol}]},
+      options:{responsive:true, maintainAspectRatio:false, animation: animOpt,
+        plugins:{
+          legend:{position:"bottom", labels:{boxWidth:12, padding:10, font:{size:11}, color:tickColor}},
+          tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} tareas`}},
+          doughnutLabels:{enabled: true}
+        }}
+    });
+  }
+  const ce = $("#chartEstado");
+  if(ce){
+    const completadas = tareas.filter(t=>t.pct>=0.999).length;
+    const enCurso = tareas.filter(t=>t.pct>0 && t.pct<0.999).length;
+    const pendientes = tareas.filter(t=>t.pct===0).length;
+    state.charts.estado = new Chart(ce, {
+      type:"doughnut",
+      data:{labels:["Completadas","En curso","Pendientes"], datasets:[{data:[completadas,enCurso,pendientes], backgroundColor:["#2e7d32","#f9a825","#dc2626"], borderWidth:2, borderColor:borderCol}]},
+      options:{responsive:true, maintainAspectRatio:false, animation: animOpt,
+        plugins:{
+          legend:{position:"bottom", labels:{boxWidth:12, padding:10, font:{size:11}, color:tickColor}},
+          tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed} tareas`}},
+          doughnutLabels:{enabled: true}
+        }}
+    });
+  }
+  renderMiniChartsAll(tareas, base, null, animate);
+}
+
+function bindInteracciones(){
+  $$(".kpi").forEach(k=>{
+    k.onmouseenter = e=>{
+      const metrica = k.dataset.metrica, val = k.dataset.valor;
+      let msg = "";
+      if(metrica==="alineacion") msg = `Alineación = Tareas completadas con Goal ÷ Total tareas × 100 = ${val}%`;
+      else if(metrica==="ocupTareas") msg = `Ocupación (tareas) = Tareas completadas ÷ Total tareas × 100 = ${val}%`;
+      else if(metrica==="ocupHoras") msg = `Ocupación (horas) = Σ horas completadas ÷ Base de horas × 100 = ${val}%`;
+      else if(metrica==="score") msg = `Score = 25% Alineación + 25% Ocup.Tareas + 50% Ocup.Horas = ${val}%`;
+      mostrarTip(e, msg);
+    };
+    k.onmouseleave = ocultarTip;
+    k.onclick = ()=>mostrarModalFuente(k.dataset.metrica);
+  });
+}
+function mostrarTip(e, txt){
+  const tip = $("#tip");
+  if(!tip) return;
+  tip.textContent = txt; tip.classList.add("show");
+  const rect = e.currentTarget.getBoundingClientRect();
+  tip.style.left = Math.min(rect.left, window.innerWidth-350) + "px";
+  tip.style.top = Math.max(10, rect.top - tip.offsetHeight - 10) + "px";
+}
+function ocultarTip(){ const t = $("#tip"); if(t) t.classList.remove("show"); }
+function mostrarModalFuente(metrica){
+  const modal = $("#modalBg"), title = $("#modalTitle"), body = $("#modalBody");
+  if(!modal) return;
+  const ini = $("#fIni").value, fin = $("#fFin").value;
+  let info = "";
+  if(metrica==="alineacion") info = `<p><b>Fórmula:</b> Tareas completadas con Goal ÷ Total tareas × 100</p><p><b>Período:</b> ${ini} → ${fin}</p><p><b>Fuente:</b> Hoja "Tareas de proyecto" (${state.tipo}).</p><p><b>Columnas:</b> "% completado" y "Goal".</p>`;
+  else if(metrica==="ocupTareas") info = `<p><b>Fórmula:</b> Tareas completadas ÷ Total tareas × 100</p><p><b>Período:</b> ${ini} → ${fin}</p><p><b>Fuente:</b> Hoja "Tareas de proyecto" (${state.tipo}).</p><p><b>Columna:</b> "% completado".</p>`;
+  else if(metrica==="ocupHoras") info = `<p><b>Fórmula:</b> Σ horas completadas ÷ Base de horas × 100</p><p><b>Período:</b> ${ini} → ${fin}</p><p><b>Fuente:</b> Hoja "Tareas de proyecto" (${state.tipo}).</p><p><b>Columnas:</b> "Esfuerzo" y "Esfuerzo completado".</p>`;
+  else if(metrica==="score") info = `<p><b>Fórmula:</b> 25% Alineación + 25% Ocup.Tareas + 50% Ocup.Horas (tope 100%)</p><p><b>Período:</b> ${ini} → ${fin}</p><p><b>Fuente:</b> Cálculo derivado de las tres métricas anteriores.</p>`;
+  title.textContent = "🔍 Fuente del dato · " + (metrica==="alineacion"?"% Alineación":metrica==="ocupTareas"?"% Ocupación (tareas)":metrica==="ocupHoras"?"% Ocupación (horas)":"Score");
+  body.innerHTML = info;
+  modal.classList.add("show");
+}
+function bindResumenFilters(){
+  const r = $("#fltResumenResp"), p = $("#fltResumenProyecto"), e = $("#fltResumenEstado"), b = $("#btnLimpiarFiltros");
+  const aplicar = () => {
+    state._resumenFilter = {resp: r?.value||"", proyecto: p?.value||"", estado: e?.value||""};
+    render();
+  };
+  r && r.addEventListener("change", aplicar);
+  p && p.addEventListener("change", aplicar);
+  e && e.addEventListener("change", aplicar);
+  b && b.addEventListener("click", ()=>{
+    state._resumenFilter = {resp:"", proyecto:"", estado:""};
+    render();
+  });
+}
+function bindTableFilters(){
+  const tb = $("#tablaTareas"); if(!tb) return;
+  const fBuscar = $("#fltBuscar"), fEstado = $("#fltEstado"), fGoal = $("#fltGoal"), fResp = $("#fltResp"), counter = $("#numTareasVisibles"), counterFooter = $("#numTareasFooter");
+  function aplicar(){
+    const q = (fBuscar.value||"").trim().toLowerCase();
+    const est = fEstado.value, gl = fGoal.value, resp = fResp.value;
+    let vis = 0;
+    tb.querySelectorAll("tbody tr").forEach(tr=>{
+      const okQ = !q || tr.dataset.buscar.includes(q);
+      const okE = !est || tr.dataset.estado===est;
+      const okG = gl==="" || tr.dataset.goal===gl;
+      const okR = !resp || tr.dataset.resp.split(";").map(s=>s.trim()).includes(resp);
+      const ok = okQ && okE && okG && okR;
+      tr.style.display = ok ? "" : "none";
+      if(ok) vis++;
+    });
+    if(counter) counter.textContent = vis;
+    if(counterFooter) counterFooter.textContent = vis;
+  }
+  [fBuscar,fEstado,fGoal,fResp].forEach(el=>el && el.addEventListener("input", aplicar));
+  [fBuscar,fEstado,fGoal,fResp].forEach(el=>el && el.addEventListener("change", aplicar));
+}
+function bindSubtabs(){
+  $$(".subtab-btn").forEach(btn=>{
+    btn.onclick = ()=>{
+      $$(".subtab-btn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      $$(".sub-panel").forEach(p=>p.classList.remove("active"));
+      const p = document.getElementById("sub-panel-"+btn.dataset.sub);
+      if(p) p.classList.add("active");
+      setTimeout(()=>{
+        if(typeof Chart === "undefined") return;
+        const base = state._chartData?.base || state._mini?.base || 42;
+        const tareas = state._chartData?.tareas || [];
+        renderMiniChartsAll(tareas, base, btn.dataset.sub, true);
+      }, 80);
+    };
+  });
+}
+
+async function capturarSnapshotsGraficos(){
+  const pg = document.getElementById("panel-graficos");
+  if(!pg || typeof Chart === "undefined") return {};
+  const subPanels = pg.querySelectorAll(".sub-panel");
+  const subStates = [...subPanels].map(p => ({el:p, wasActive: p.classList.contains("active")}));
+  subPanels.forEach(p => p.classList.add("active"));
+  const wasActive = pg.classList.contains("active");
+  const origCss = pg.getAttribute("style") || "";
+  pg.classList.add("active");
+  pg.style.cssText = "position:fixed !important; left:-9999px !important; top:0 !important; width:1100px !important; display:block !important;";
+  await new Promise(r => setTimeout(r, 80));
+  const animOrig = Chart.defaults.animation;
+  try { Chart.defaults.animation = false; } catch(e){}
+  const tareas = state._chartData?.tareas || [];
+  const base = state._chartData?.base || 42;
+  renderCharts(tareas, base, false);
+  renderMiniChartsAll(tareas, base, null, false);
+  try { Chart.defaults.animation = animOrig; } catch(e){}
+  await new Promise(r => setTimeout(r, 600));
+  const snapshots = {};
+  pg.querySelectorAll("canvas").forEach(c => {
+    try {
+      const url = c.toDataURL("image/png");
+      if(url && url.length > 100) snapshots[c.id] = url;
+    } catch(e){}
+  });
+  subStates.forEach(s => { if(!s.wasActive) s.el.classList.remove("active"); });
+  if(!wasActive) pg.classList.remove("active");
+  if(origCss) pg.setAttribute("style", origCss);
+  else pg.removeAttribute("style");
+  return snapshots;
+}
+function aplicarSnapshots(root, snapshots){
+  root.querySelectorAll("canvas").forEach(c => {
+    const url = snapshots[c.id];
+    if(!url) return;
+    const img = document.createElement("img");
+    img.src = url;
+    img.style.width = "100%";
+    img.style.maxHeight = "280px";
+    img.style.objectFit = "contain";
+    img.alt = c.id;
+    c.parentNode.replaceChild(img, c);
+  });
+}
+function desbloquearScroll(root){
+  root.querySelectorAll(".scroll").forEach(el=>{
+    el.style.maxHeight = "none";
+    el.style.overflow = "visible";
+  });
+  root.querySelectorAll(".rank-table-wrap").forEach(el=>{
+    el.style.overflow = "visible";
+  });
+  root.querySelectorAll(".top-item").forEach(el=>el.classList.add("show"));
+  root.querySelectorAll(".bf[data-w]").forEach(el=>el.style.width = el.dataset.w + "%");
+  root.querySelectorAll(".cnt[data-count]").forEach(el=>{
+    const dec = parseInt(el.dataset.dec || "0", 10);
+    el.textContent = parseFloat(el.dataset.count).toLocaleString("es-CO",{minimumFractionDigits:dec,maximumFractionDigits:dec}) + (el.dataset.suffix||"");
+  });
+  const fg = root.querySelector(".gauge-fg-arc");
+  if(fg){
+    const pct = parseFloat(fg.dataset.pct || "0");
+    fg.style.strokeDashoffset = String(282.74 * (1 - Math.min(100, pct)/100));
+  }
+}
+function activarTodosSubPaneles(root){
+  root.querySelectorAll(".sub-panel").forEach(p => p.classList.add("active"));
+}
+
+/* EXPORTAR HTML */
+async function generarReporte(){
+  const ini = parseDate($("#fIni").value), fin = parseDate($("#fFin").value);
+  if(!ini||!fin){ alert("Selecciona primero un período de fechas válido."); return; }
+  if(!state.tasks.length){ alert("Primero carga un archivo Excel."); return; }
+  const btn = $("#btnReporte");
+  const txtOrig = btn.textContent;
+  btn.textContent = "⏳ Generando…"; btn.disabled = true;
+  try {
+    const estilo = document.getElementById("appStyles").textContent;
+    const mainScript = document.getElementById("appScript").textContent;
+    const sello = new Date().toLocaleString("es-CO",{dateStyle:"long",timeStyle:"short"});
+    const fIniVal = $("#fIni").value;
+    const fFinVal = $("#fFin").value;
+    const criterioVal = $("#criterio").value;
+    const baseHorasVal = $("#baseHoras").value;
+    const configExport = `
+    <section class="card" id="configSection">
+      <h2>⚙️ Configuración</h2>
+      <div class="grid-cfg">
+        <div>
+          <label class="f" for="fIni">Fecha inicial</label>
+          <input type="date" id="fIni" value="${fIniVal}">
+        </div>
+        <div>
+          <label class="f" for="fFin">Fecha final</label>
+          <input type="date" id="fFin" value="${fFinVal}">
+        </div>
+        <div>
+          <label class="f" for="criterio">Criterio</label>
+          <select id="criterio">
+            <option value="todos" ${criterioVal==="todos"?"selected":""}>Todos (que toquen el período)</option>
+            <option value="inicio" ${criterioVal==="inicio"?"selected":""}>Tareas que INICIAN</option>
+            <option value="fin" ${criterioVal==="fin"?"selected":""}>Tareas que FINALIZAN</option>
+            <option value="solape" ${criterioVal==="solape"?"selected":""}>Tareas que se SOLAPAN</option>
+          </select>
+        </div>
+        <div>
+          <label class="f" for="baseHoras">Base de horas</label>
+          <select id="baseHoras">
+            <option value="periodo" ${baseHorasVal==="periodo"?"selected":""}>42 h × semanas</option>
+            <option value="fijo" ${baseHorasVal==="fijo"?"selected":""}>42 h fijas</option>
+          </select>
+        </div>
+      </div>
+      <div class="chips">
+        <span class="chip" data-range="semana">📅 Esta semana</span>
+        <span class="chip" data-range="semanaPasada">⬅ Semana pasada</span>
+        <span class="chip" data-range="mes">📆 Este mes</span>
+        <span class="chip" data-range="mesPasado">⬅ Mes pasado</span>
+        <span class="chip" data-range="todo">🗓️ Todo el proyecto</span>
+      </div>
+    </section>`;
+    const resumenWrap = document.getElementById("panel-resumen").cloneNode(true);
+    const cfgOld = resumenWrap.querySelector("#configSection");
+    if(cfgOld){
+      const tmp = document.createElement("div");
+      tmp.innerHTML = configExport;
+      cfgOld.parentNode.replaceChild(tmp.firstElementChild, cfgOld);
+    }
+    desbloquearScroll(resumenWrap);
+    const chartsWrap = document.getElementById("panel-graficos").cloneNode(true);
+    activarTodosSubPaneles(chartsWrap);
+    const datosWrap = document.getElementById("panel-datos").cloneNode(true);
+    datosWrap.querySelectorAll(".table-filters").forEach(n=>n.remove());
+    desbloquearScroll(datosWrap);
+    const datosJSON = JSON.stringify({
+      tasks: state.tasks.map(t => ({
+        num: t.num, nombre: t.nombre, proyecto: t.proyecto, pct: t.pct,
+        esfuerzo: (t.esfuerzo === null || t.esfuerzo === undefined) ? null : t.esfuerzo,
+        completado: t.completado || 0,
+        inicio: t.inicio ? (t.inicio instanceof Date ? t.inicio.toISOString() : t.inicio) : null,
+        fin: t.fin ? (t.fin instanceof Date ? t.fin.toISOString() : t.fin) : null,
+        asignado: t.asignado, goal: t.goal, goalFull: t.goalFull
+      })),
+      tipo: state.tipo, meta: state.meta, origen: state.origen,
+      periodo: { ini: fIniVal, fin: fFinVal },
+      criterio: criterioVal, baseHoras: baseHorasVal
+    });
+    const bootstrapScript = `
+    window.__IS_EXPORT__ = true;
+    window.__EXPORT_DATA__ = ${datosJSON};
+    `;
+    const safeMainScript = mainScript.replace(/<\/script>/gi, '<\\/script>');
+    const doc = `<!DOCTYPE html>
+<html lang="es" data-font="normal">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reporte Alineación y Ocupación · ANEI</title>
+<link rel="shortcut icon" href="https://anei.org.co/hubfs/logooooooo.png">
+<style>${estilo}</style>
+</head>
+<body data-theme="light" data-font="normal">
+<div id="preloader">
+  <div class="loader-logo">
+    <img src="https://anei.org.co/hubfs/logooooooo.png" alt="ANEI" onerror="this.style.display='none';this.parentElement.innerHTML='<b style=font-size:26px;color:#5D4037>ANEI</b>'">
+  </div>
+  <div class="loader-titles">
+    <div class="loader-title">Alineación y Ocupación <span style="color:#2e7d32">· ANEI</span></div>
+    <div class="loader-sub">PLANNER · BUSINESS INTELLIGENCE</div>
+  </div>
+  <div class="loader-bar"><div class="loader-bar-inner" id="loaderBarInner"></div></div>
+</div>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="brand-logo"><img src="https://anei.org.co/hubfs/logooooooo.png" alt="ANEI" onerror="this.style.display='none';this.parentElement.innerHTML='<b style=font-size:16px;color:#2e7d32>ANEI</b>'"></div>
+      <div>
+        <h1>Alineación y Ocupación <span id="tipoBadge" class="tipo-badge">${state.tipo||"Reporte"}</span></h1>
+        <p id="topSub">Proyecto: ${state.meta.proyecto||"—"} · Responsable: ${RESPONSABLE}</p>
+      </div>
+    </div>
+    <div class="header-tools">
+      <div class="seg" id="themeSeg">
+        <button class="seg-btn active" data-theme="light">☀️</button>
+        <button class="seg-btn" data-theme="gray">🌫️</button>
+        <button class="seg-btn" data-theme="dark">🌙</button>
+      </div>
+      <div class="seg" id="fontSeg">
+        <button class="seg-btn" data-font="small">A-</button>
+        <button class="seg-btn active" data-font="normal">A</button>
+        <button class="seg-btn" data-font="large">A+</button>
+        <button class="seg-btn" data-font="xlarge">A++</button>
+      </div>
+    </div>
+  </header>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="resumen">📊 Resumen</button>
+    <button class="tab-btn" data-tab="graficos">📈 Gráficos</button>
+    <button class="tab-btn" data-tab="datos">📋 Datos</button>
+  </div>
+  <div class="tab-panel active" id="panel-resumen">${resumenWrap.innerHTML}</div>
+  <div class="tab-panel" id="panel-graficos">${chartsWrap.innerHTML}</div>
+  <div class="tab-panel" id="panel-datos">${datosWrap.innerHTML}</div>
+  <div class="rpt-head" style="margin-top:22px">
+    <img src="https://anei.org.co/hubfs/logooooooo.png" alt="ANEI" style="width:50px;height:50px;border-radius:10px;background:#fff;padding:4px;margin-bottom:8px;">
+    <h1>Reporte de Alineación y Ocupación</h1>
+    <p><b>Proyecto:</b> ${state.meta.proyecto||"—"} (${state.tipo||"—"})</p>
+    <p><b>Responsable:</b> ${RESPONSABLE}</p>
+    <p><b>Período analizado:</b> ${fmtDate(ini)} → ${fmtDate(fin)}</p>
+    <p><b>Generado:</b> ${sello} · <b>Fuente:</b> ${state.origen}</p>
+  </div>
+  <footer class="rpt">Documento generado automáticamente · ANEI · Alineación y Ocupación</footer>
+</div>
+<div class="modal-bg" id="modalBg"><div class="modal"><button class="close" id="modalClose">×</button><h3 id="modalTitle">Detalle</h3><div id="modalBody"></div></div></div>
+<div class="tip" id="tip"></div>
+<script>${bootstrapScript}<\/script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>
+<script id="appScript">${safeMainScript}<\/script>
+</body>
+</html>`;
+    const blob = new Blob([doc], {type:"text/html;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Reporte_ANEI_${(state.tipo||"Planner").replace(/\s/g,"_")}_${toISO(ini)}_a_${toISO(fin)}.html`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 3000);
+  } catch(err){
+    console.error(err);
+    alert("Error al generar el reporte: " + err.message);
+  } finally {
+    btn.textContent = txtOrig; btn.disabled = false;
+  }
+}
+
+/* EXPORTAR PDF */
+async function exportarPDF(){
+  const ini = parseDate($("#fIni").value), fin = parseDate($("#fFin").value);
+  if(!ini||!fin){ alert("Selecciona primero un período de fechas válido."); return; }
+  if(!state.tasks.length){ alert("Primero carga un archivo Excel."); return; }
+  const btn = $("#btnPDF");
+  const txtOrig = btn.textContent;
+  btn.textContent = "⏳ Generando PDF…"; btn.disabled = true;
+  const tempDivId = "pdf-temp-container";
+  const overlayId = "pdf-overlay";
+  let tempDiv = null, overlay = null;
+  try {
+    overlay = document.createElement("div");
+    overlay.id = overlayId;
+    overlay.innerHTML = `
+      <div class="pdf-spinner"></div>
+      <div class="pdf-overlay-title">Generando PDF…</div>
+      <div class="pdf-overlay-sub">Esto puede tomar unos segundos</div>
+    `;
+    document.body.appendChild(overlay);
+    const snapshots = await capturarSnapshotsGraficos();
+    const resumenWrap = document.getElementById("panel-resumen").cloneNode(true);
+    resumenWrap.querySelectorAll("#configSection").forEach(n=>n.remove());
+    desbloquearScroll(resumenWrap);
+    const chartsWrap = document.getElementById("panel-graficos").cloneNode(true);
+    aplicarSnapshots(chartsWrap, snapshots);
+    activarTodosSubPaneles(chartsWrap);
+    chartsWrap.querySelectorAll(".subtabs").forEach(n=>n.style.display="none");
+    const datosWrap = document.getElementById("panel-datos").cloneNode(true);
+    datosWrap.querySelectorAll(".table-filters").forEach(n=>n.remove());
+    desbloquearScroll(datosWrap);
+    const sello = new Date().toLocaleString("es-CO",{dateStyle:"long",timeStyle:"short"});
+    const estilo = document.getElementById("appStyles").textContent;
+    tempDiv = document.createElement("div");
+    tempDiv.id = tempDivId;
+    tempDiv.style.cssText = `
+      position:absolute;left:0;top:0;width:1080px;background:#ffffff;color:#1a2029;
+      padding:24px;font-family:'Segoe UI', Roboto, sans-serif;
+      z-index:2147483646;overflow:visible;
+    `;
+    tempDiv.innerHTML = `
+      <style>${estilo}</style>
+      <div style="background:linear-gradient(120deg,#2e7d32,#66bb6a);color:#fff;border-radius:14px;padding:18px 22px;margin-bottom:16px">
+        <img src="https://anei.org.co/hubfs/logooooooo.png" alt="ANEI" style="width:44px;height:44px;border-radius:8px;background:#fff;padding:4px;margin-bottom:6px;">
+        <h1 style="margin:0 0 6px;font-size:20px;color:#fff">Reporte de Alineación y Ocupación · ANEI</h1>
+        <p style="margin:2px 0;font-size:12px;color:#fff"><b>Proyecto:</b> ${state.meta.proyecto||"—"} (${state.tipo||"—"})</p>
+        <p style="margin:2px 0;font-size:12px;color:#fff"><b>Responsable:</b> ${RESPONSABLE}</p>
+        <p style="margin:2px 0;font-size:12px;color:#fff"><b>Período:</b> ${fmtDate(ini)} → ${fmtDate(fin)}</p>
+        <p style="margin:2px 0;font-size:12px;color:#fff"><b>Generado:</b> ${sello} · <b>Fuente:</b> ${state.origen}</p>
+      </div>
+      <div class="pdf-section-title" style="break-before:auto;page-break-before:auto;margin-top:0">📊 RESUMEN</div>
+      <div class="pdf-section">${resumenWrap.innerHTML}</div>
+      <div class="pdf-section-title">📈 GRÁFICOS</div>
+      <div class="pdf-section">${chartsWrap.innerHTML}</div>
+      <div class="pdf-section-title">📋 DATOS</div>
+      <div class="pdf-section">${datosWrap.innerHTML}</div>
+      <footer style="margin-top:22px;text-align:center;font-size:11px;color:#64748b">
+        Documento generado automáticamente · ANEI · Alineación y Ocupación
+      </footer>
+    `;
+    document.body.appendChild(tempDiv);
+    tempDiv.offsetHeight;
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    await new Promise(resolve => {
+      const imgs = tempDiv.querySelectorAll("img");
+      if(!imgs.length){ setTimeout(resolve, 400); return; }
+      let pending = 0;
+      imgs.forEach(img => {
+        if(img.complete && img.naturalWidth > 0) return;
+        pending++;
+        const done = () => { pending--; if(pending <= 0) resolve(); };
+        img.onload = done; img.onerror = done;
+      });
+      if(pending === 0) setTimeout(resolve, 400);
+      setTimeout(resolve, 3000);
+    });
+    await new Promise(r => setTimeout(r, 500));
+    await html2pdf().set({
+      margin:[8,8,8,8],
+      filename:`Reporte_ANEI_${(state.tipo||"Planner").replace(/\s/g,"_")}_${toISO(ini)}_a_${toISO(fin)}.pdf`,
+      image:{type:"jpeg", quality:0.95},
+      html2canvas:{scale:2, useCORS:true, backgroundColor:"#ffffff", scrollX:0, scrollY:0, windowWidth:1080, logging:false},
+      jsPDF:{unit:"mm", format:"a4", orientation:"portrait"},
+      pagebreak:{mode:["css","legacy"], before:".pdf-section-title"}
+    }).from(tempDiv).save();
+  } catch(err){
+    console.error("Error PDF:", err);
+    alert("Error al generar el PDF: " + err.message);
+  } finally {
+    if(tempDiv && tempDiv.parentNode) tempDiv.parentNode.removeChild(tempDiv);
+    if(overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    btn.textContent = txtOrig; btn.disabled = false;
+  }
+}
+
+/* INIT */
+function setStatus(msg, tipo){
+  const el=$("#status");
+  if(!el) return;
+  el.className="status "+(tipo||"info");
+  el.textContent=msg;
+  if(!msg) el.className="status";
+}
+function autoRango(){
+  const fechas = state.tasks.flatMap(t=>[t.inicio,t.fin]).filter(Boolean).map(d => (d instanceof Date) ? d : new Date(d)).filter(d => !isNaN(d)).sort((a,b)=>a-b);
+  if(!fechas.length) return;
+  const fIni = $("#fIni"), fFin = $("#fFin");
+  if(fIni) fIni.value = toISO(fechas[0]);
+  if(fFin) fFin.value = toISO(fechas[fechas.length-1]);
+}
+function setRango(d,h){
+  const fIni = $("#fIni"), fFin = $("#fFin");
+  if(fIni) fIni.value=toISO(d);
+  if(fFin) fFin.value=toISO(h);
+  render();
+}
+function aplicarChip(tipo){
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  if(tipo==="semana"){ const l=startOfWeek(hoy); setRango(l, addDays(l,6)); }
+  else if(tipo==="semanaPasada"){ const l=addDays(startOfWeek(hoy),-7); setRango(l, addDays(l,6)); }
+  else if(tipo==="mes"){ setRango(new Date(hoy.getFullYear(),hoy.getMonth(),1), new Date(hoy.getFullYear(),hoy.getMonth()+1,0)); }
+  else if(tipo==="mesPasado"){ setRango(new Date(hoy.getFullYear(),hoy.getMonth()-1,1), new Date(hoy.getFullYear(),hoy.getMonth(),0)); }
+  else if(tipo==="todo"){ autoRango(); render(); }
+}
+function init(){
+  try {
+    if(window.__IS_EXPORT__ && window.__EXPORT_DATA__){
+      state.tasks = (window.__EXPORT_DATA__.tasks || []).map(t => ({
+        ...t,
+        inicio: t.inicio ? new Date(t.inicio) : null,
+        fin:    t.fin    ? new Date(t.fin)    : null,
+        esfuerzo:  (t.esfuerzo  === null || t.esfuerzo  === undefined || t.esfuerzo  === "") ? null : Number(t.esfuerzo),
+        completado:(t.completado=== null || t.completado=== undefined || t.completado=== "") ? 0    : Number(t.completado),
+        pct: (t.pct === null || t.pct === undefined) ? 0 : Number(t.pct)
+      }));
+      state.tipo   = window.__EXPORT_DATA__.tipo   || "";
+      state.meta   = window.__EXPORT_DATA__.meta   || {proyecto:"", propietario:RESPONSABLE};
+      state.origen = window.__EXPORT_DATA__.origen || "HTML exportado";
+      state._resumenFilter = {resp:"", proyecto:"", estado:""};
+      state._mesesData = [];
+      if(window.__EXPORT_DATA__.periodo){
+        const fIni=$("#fIni"), fFin=$("#fFin");
+        if(fIni && window.__EXPORT_DATA__.periodo.ini) fIni.value = window.__EXPORT_DATA__.periodo.ini;
+        if(fFin && window.__EXPORT_DATA__.periodo.fin) fFin.value = window.__EXPORT_DATA__.periodo.fin;
+      }
+      if($("#criterio") && window.__EXPORT_DATA__.criterio) $("#criterio").value = window.__EXPORT_DATA__.criterio;
+      if($("#baseHoras") && window.__EXPORT_DATA__.baseHoras) $("#baseHoras").value = window.__EXPORT_DATA__.baseHoras;
+      const badge = $("#tipoBadge");
+      if(badge){ badge.textContent = state.tipo; badge.style.display = "inline-block"; }
+      const topSub = $("#topSub");
+      if(topSub) topSub.textContent = `Proyecto: ${state.meta.proyecto||"—"} · Responsable: ${RESPONSABLE}`;
+    }
+    render();
+    ["fIni","fFin","criterio","baseHoras"].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.addEventListener("change", render);
+    });
+    $$(".chip").forEach(c=>c.addEventListener("click", ()=>aplicarChip(c.dataset.range)));
+    const bRep = $("#btnReporte");
+    if(bRep) bRep.addEventListener("click", generarReporte);
+    const bPDF = $("#btnPDF");
+    if(bPDF) bPDF.addEventListener("click", exportarPDF);
+    const bClose = $("#modalClose");
+    if(bClose) bClose.addEventListener("click", ()=>{ const m = $("#modalBg"); if(m) m.classList.remove("show"); });
+    const mBg = $("#modalBg");
+    if(mBg) mBg.addEventListener("click", e=>{ if(e.target.id==="modalBg") e.currentTarget.classList.remove("show"); });
+    $$("#themeSeg .seg-btn").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        $$("#themeSeg .seg-btn").forEach(b=>b.classList.remove("active"));
+        btn.classList.add("active");
+        document.body.dataset.theme = btn.dataset.theme;
+        if(state._chartData){
+          setTimeout(()=>{
+            renderCharts(state._chartData.tareas, state._chartData.base, true);
+            renderMiniChartsAll(state._chartData.tareas, state._chartData.base, null, true);
+          }, 100);
+        }
+      });
+    });
+    $$("#fontSeg .seg-btn").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        $$("#fontSeg .seg-btn").forEach(b=>b.classList.remove("active"));
+        btn.classList.add("active");
+        document.documentElement.dataset.font = btn.dataset.font;
+      });
+    });
+    $$(".tab-btn").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        $$(".tab-btn").forEach(b=>b.classList.remove("active"));
+        $$(".tab-panel").forEach(p=>p.classList.remove("active"));
+        btn.classList.add("active");
+        const panel = document.getElementById("panel-"+btn.dataset.tab);
+        if(panel) panel.classList.add("active");
+        if(panel){
+          resetAnimaciones(panel);
+          setTimeout(()=>{
+            dispararAnimacionesPanel(panel);
+            setupAnimObserver();
+          }, 60);
+        }
+        if(btn.dataset.tab==="graficos"){
+          setTimeout(()=>{
+            renderCharts(state._chartData?.tareas||[], state._chartData?.base||42, true);
+          }, 120);
+        }
+      });
+    });
+    const fileInput = $("#fileInput");
+    if(fileInput) fileInput.addEventListener("change", e=>{
+      const file = e.target.files[0]; if(!file) return;
+      if(typeof XLSX==="undefined"){ setStatus("✖ No se pudo cargar la librería de Excel.","err"); return; }
+      setStatus("⏳ Leyendo "+file.name+" …","info");
+      const reader = new FileReader();
+      reader.onload = ev=>{
+        try{
+          const wb = XLSX.read(new Uint8Array(ev.target.result), {type:"array", cellDates:true});
+          const {tasks, meta, tipo} = parseWorkbook(wb, file.name);
+          state.tasks = tasks;
+          state.tipo = tipo;
+          state.meta = {proyecto: meta.proyecto || "Alineación y ocupación", propietario: RESPONSABLE};
+          state.origen = file.name;
+          state._resumenFilter = {resp:"", proyecto:"", estado:""};
+          const badge = $("#tipoBadge");
+          if(badge){ badge.textContent = tipo; badge.style.display = "inline-block"; }
+          const topSub = $("#topSub");
+          if(topSub) topSub.textContent = `Proyecto: ${state.meta.proyecto||"—"} · Responsable: ${RESPONSABLE}`;
+          autoRango();
+          render();
+          setStatus(`✔ ${tasks.length} tareas cargadas · Planner detectado: ${tipo}.`,"ok");
+        }catch(err){
+          console.error(err);
+          setStatus("✖ Error al leer el archivo: "+err.message,"err");
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  } catch(err){
+    console.error("Error en init():", err);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  try { init(); } catch(err){ console.error(err); }
+});
+</script>
+</body>
+</html>
